@@ -8,15 +8,10 @@ import javax.swing.JTextField;
 import javax.swing.JButton;
 import java.awt.FlowLayout;
 import javax.swing.JScrollPane;
-import java.awt.Color;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 
 
 public class App 
 {
-	
-	static Color colorBtnBlue = new Color (51,102, 204);
 
     public static void main( String[] args )
     {
