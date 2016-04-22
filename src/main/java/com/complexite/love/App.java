@@ -7,6 +7,8 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import java.awt.FlowLayout;
+import java.util.ArrayList;
+
 import javax.swing.JScrollPane;
 
 
@@ -109,6 +111,44 @@ public class App
     	    
     		// Affichage de la fenêtre
     		fenetre.setVisible(true);
+    		
+    		
+    		//Tamere
+    		int coucou[][] =  {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+    		System.out.println(calculNombreChromatique(coucou));
+    		
+    		
     }
+    
+    public static int calculNombreChromatique(int matriceAdjacence[][]){
+    	int taille;
+    	int nombreChromatique=0;
+    	int degresLePlusEleve;
+    	//Recupère la taille de la ligne 0 de la matrice, étant donné qu'il s'agit d'une matrice carré : on recupère en fait la taille de la matrice. 
+    	taille = matriceAdjacence[0].length;
+    	
+    	for (int i=0;i<taille;i++){
+    		degresLePlusEleve=0;
+    		for (int j=0;j<taille;j++){
+    			if(matriceAdjacence[i][j]==1){
+    				degresLePlusEleve++;
+    			}
+    		}
+    		if(degresLePlusEleve>nombreChromatique)
+    			nombreChromatique=degresLePlusEleve;
+    	}
+    	
+    	
+    	return nombreChromatique;
+    }
+    
+    
+    public static ArrayList<String> backtrackingSequentialColoring(int matriceAdjacence[][]){
+    	
+    	return null;
+    }
+    
+    
+    
 }
 
