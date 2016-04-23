@@ -8,6 +8,8 @@ import javax.swing.JTextField;
 import javax.swing.JButton;
 import java.awt.FlowLayout;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JScrollPane;
 
@@ -114,8 +116,14 @@ public class App
     		
     		
     		//Tamere
-    		int coucou[][] =  {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+    		//Graphe  de Petersen
+    		int coucou[][] =  {{0, 1, 0,0,1,0, 1, 0,0,0}   ,   {1, 0, 1,0,0,0, 0, 1,0,0}  ,   {0, 1, 0,1,0,0, 0, 0,1,0},   {0,0, 1,0,1,0, 0, 0,0,1},   {1, 0, 0,1,0,1, 0, 0,0,0},   {0, 0, 0,0,1,0, 0, 1,1,0},   {1, 0, 0,0,0,0,0,0,1,1},   {0, 1, 0,0,0,1, 0, 0,0,1},   {0, 0, 1,0,0,1, 1, 0,0,0},   {0, 0, 0,1,0,0, 1, 1,0,0}};
     		System.out.println(calculNombreChromatique(coucou));
+    		Map<Integer, NoeudCouleur> noeuds;
+    		noeuds = backtrackingSequentialColoring(coucou);
+    		for(int i=0;i<noeuds.size();i++){
+        		System.out.println("Couleur Du noeud"+i+" est :"+noeuds.get(i).getCouleurCourante());
+        	}
     		
     		
     }
@@ -143,12 +151,111 @@ public class App
     }
     
     
-    public static ArrayList<String> backtrackingSequentialColoring(int matriceAdjacence[][]){
+    public static Map<Integer, NoeudCouleur> backtrackingSequentialColoring(int matriceAdjacence[][]){
+    	//Initialisation
+    	Map<Integer, NoeudCouleur> noeuds = new HashMap<Integer, NoeudCouleur>();
+    	int taille = matriceAdjacence[0].length;
+    	int nbCouleurMax = calculNombreChromatique(matriceAdjacence);
     	
-    	return null;
+    	for (int i=0;i<taille;i++){
+			NoeudCouleur noeud = new NoeudCouleur();
+			noeuds.put(i, noeud);
+		}
+    	
+    
+    		laveriteJteJure(noeuds,matriceAdjacence,nbCouleurMax);
+    
+    	
+    	
+    	
+    	return noeuds;
+    }
+
+    public static void   laveriteJteJure(Map<Integer, NoeudCouleur> noeuds,int matriceAdjacence[][],int nbCouleurMax){
+    	int noeudCourant=0;
+    	int nbNoeud = matriceAdjacence[0].length;
+    	System.out.println("nombre de noeuds : " +nbNoeud);
+    	System.out.println("Nombre de couleur max = "+nbCouleurMax);
+    	//Le noeud courant est le 1er noeud rencontré qui possède la couleur neutre : 0.
+    	noeudCourant=getIndexPremierNoeudNonColorier(noeuds);
+    	System.out.println("noeud courant = "+noeudCourant);
+    	
+    	//On regarde si la "liste des couleurs deja utilisée" du noeud courant est au max
+    	//Si c'est le cas cela veut dire que toutes les couleurs ont deja étaient tenté sur ce noeuds sans succès
+    	//Il faut donc décolorer le noeuds d'avant et rappeler la fonction.
+    	if(noeuds.get(noeudCourant).getListeCouleurDejaUtilisee().size()==nbCouleurMax){
+    		noeuds.get(noeudCourant-1).setCouleurCourante(0);
+    		noeuds.get(noeudCourant).getListeCouleurDejaUtilisee().clear();
+    		laveriteJteJure(noeuds,matriceAdjacence,nbCouleurMax);
+    	}
+    	
+    	//Coloration du noeud courant avec une couleur qu'il n'a jamais rencontré
+    	noeuds.get(noeudCourant).setCouleurCourante(getIndexPremiereCouleurNonDejaUtilise(noeuds,noeudCourant,nbCouleurMax));
+    	
+    	//tester si la condition de coloration est vérifiée
+    	boolean conditionRespectee=true;
+    	for (int j=0;j<nbNoeud;j++){
+    		
+    		if(matriceAdjacence[noeudCourant][j]==1&&noeudCourant !=j){
+    			if(noeuds.get(j).getCouleurCourante()==noeuds.get(noeudCourant).getCouleurCourante() ){
+    				System.out.println("couleur du noeud courant "+ noeudCourant +" : "+ noeuds.get(noeudCourant).getCouleurCourante()+"   Couleur du noeud testé"+ j +":" + noeuds.get(j).getCouleurCourante());
+    				conditionRespectee=false;
+    			}
+    		}
+    	}
+    	
+    	if(conditionRespectee==false){
+    		//On décolore le noeud
+    		noeuds.get(noeudCourant).setCouleurCourante(0);
+    		//Et on le redonne à manger à l'algorithme récursif.
+    		laveriteJteJure(noeuds,matriceAdjacence,nbCouleurMax);
+    	}
+    	else{
+    		//Si c'est vrai on a juste à rappeler l'algo xD lol 
+    		if(areAllColored(noeuds)==true){
+    			return;
+    		}
+    		laveriteJteJure(noeuds,matriceAdjacence,nbCouleurMax);
+    	}
+    	
+    	
+		
     }
     
+    //Fonction qui check si tous les noeuds du graphe sont coloriées, return true si c'est le cas, false sinon.
+    public static boolean areAllColored(Map<Integer, NoeudCouleur> noeuds){
+    	int compteurDeNoeudColorier=0;
+    	for (int i=0;i<noeuds.size();i++){
+    		//On check si la couleur est différente de la couleur neutre.
+    		if( noeuds.get(i).getCouleurCourante() > 0  ){
+    			compteurDeNoeudColorier++;
+    		}
+    	}
+    	//Si le nombre de noeuds est égale au compteur alors on renvoie true..
+    	if(compteurDeNoeudColorier==noeuds.size())
+    		return true;
+    	
+    	else
+    		return false;
+    	
+    }
+    public static int getIndexPremierNoeudNonColorier(Map<Integer, NoeudCouleur> noeuds){
+    	for(int i=0;i<noeuds.size();i++){
+    		if (noeuds.get(i).getCouleurCourante()==0){
+    			return i;
+    		}
+    	}
     
+    	return -1;
+    }
+    public static int getIndexPremiereCouleurNonDejaUtilise(Map<Integer, NoeudCouleur> noeuds, int noeudCourant,int nbCouleurMax){
+    	for(int i=1;i<=nbCouleurMax;i++){
+    		if (noeuds.get(noeudCourant).getListeCouleurDejaUtilisee().contains(i)==false){
+    			return i;
+    		}
+    	}
+    	return -1;
     
+    }
 }
 
