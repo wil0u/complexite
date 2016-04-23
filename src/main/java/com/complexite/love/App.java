@@ -163,7 +163,7 @@ public class App
 		}
     	
     
-    		laveriteJteJure(noeuds,matriceAdjacence,nbCouleurMax);
+    		algoRecursifBacktracking(noeuds,matriceAdjacence,nbCouleurMax);
     
     	
     	
@@ -171,7 +171,7 @@ public class App
     	return noeuds;
     }
 
-    public static void   laveriteJteJure(Map<Integer, NoeudCouleur> noeuds,int matriceAdjacence[][],int nbCouleurMax){
+    public static void   algoRecursifBacktracking(Map<Integer, NoeudCouleur> noeuds,int matriceAdjacence[][],int nbCouleurMax){
     	int noeudCourant=0;
     	int nbNoeud = matriceAdjacence[0].length;
     	System.out.println("nombre de noeuds : " +nbNoeud);
@@ -186,7 +186,7 @@ public class App
     	if(noeuds.get(noeudCourant).getListeCouleurDejaUtilisee().size()==nbCouleurMax){
     		noeuds.get(noeudCourant-1).setCouleurCourante(0);
     		noeuds.get(noeudCourant).getListeCouleurDejaUtilisee().clear();
-    		laveriteJteJure(noeuds,matriceAdjacence,nbCouleurMax);
+    		algoRecursifBacktracking(noeuds,matriceAdjacence,nbCouleurMax);
     	}
     	
     	//Coloration du noeud courant avec une couleur qu'il n'a jamais rencontré
@@ -208,14 +208,14 @@ public class App
     		//On décolore le noeud
     		noeuds.get(noeudCourant).setCouleurCourante(0);
     		//Et on le redonne à manger à l'algorithme récursif.
-    		laveriteJteJure(noeuds,matriceAdjacence,nbCouleurMax);
+    		algoRecursifBacktracking(noeuds,matriceAdjacence,nbCouleurMax);
     	}
     	else{
     		//Si c'est vrai on a juste à rappeler l'algo xD lol 
     		if(areAllColored(noeuds)==true){
     			return;
     		}
-    		laveriteJteJure(noeuds,matriceAdjacence,nbCouleurMax);
+    		algoRecursifBacktracking(noeuds,matriceAdjacence,nbCouleurMax);
     	}
     	
     	
