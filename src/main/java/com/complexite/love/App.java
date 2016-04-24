@@ -119,7 +119,7 @@ public class App
     		//Graphe  de Petersen
     		int coucou[][] =  {{0, 1, 0,0,1,0, 1, 0,0,0}   ,   {1, 0, 1,0,0,0, 0, 1,0,0}  ,   {0, 1, 0,1,0,0, 0, 0,1,0},   {0,0, 1,0,1,0, 0, 0,0,1},   {1, 0, 0,1,0,1, 0, 0,0,0},   {0, 0, 0,0,1,0, 0, 1,1,0},   {1, 0, 0,0,0,0,0,0,1,1},   {0, 1, 0,0,0,1, 0, 0,0,1},   {0, 0, 1,0,0,1, 1, 0,0,0},   {0, 0, 0,1,0,0, 1, 1,0,0}};
     		System.out.println(calculNombreChromatique(coucou));
-    		Map<Integer, NoeudCouleur> noeuds;
+    		Map<Integer, Noeud> noeuds;
     		noeuds = backtrackingSequentialColoring(coucou);
     		System.out.println("--------BSC--------");
     		for(int i=0;i<noeuds.size();i++){
@@ -131,7 +131,7 @@ public class App
         		System.out.println("Couleur Du noeud"+i+" est :"+noeuds.get(i).getCouleurCourante());
         	}
     }
-    
+    //--------------------------------------------------------------------------FONCTIONS UTILITAIRES-------------------------------------------------------------------------------------------------
     public static int calculNombreChromatique(int matriceAdjacence[][]){
     	int taille;
     	int nombreChromatique=0;
@@ -155,14 +155,195 @@ public class App
     }
     
     
-    public static Map<Integer, NoeudCouleur> backtrackingSequentialColoring(int matriceAdjacence[][]){
+       
+    //Fonction qui check si tous les noeuds du graphe sont coloriées, return true si c'est le cas, false sinon.
+    public static boolean areAllColored(Map<Integer, Noeud> noeuds){
+    	int compteurDeNoeudColorier=0;
+    	for (int i=0;i<noeuds.size();i++){
+    		//On check si la couleur est différente de la couleur neutre.
+    		if( noeuds.get(i).getCouleurCourante() > 0  ){
+    			compteurDeNoeudColorier++;
+    		}
+    	}
+    	//Si le nombre de noeuds est égale au compteur alors on renvoie true..
+    	if(compteurDeNoeudColorier==noeuds.size())
+    		return true;
+    	
+    	else
+    		return false;
+    	
+    }
+    public static int getIndexPremierNoeudNonColorier(Map<Integer, Noeud> noeuds){
+    	for(int i=0;i<noeuds.size();i++){
+    		if (noeuds.get(i).getCouleurCourante()==0){
+    			return i;
+    		}
+    	}
+    
+    	return -1;
+    }
+    public static int getIndexPremiereCouleurNonDejaUtilise(Map<Integer, Noeud> noeuds, int noeudCourant,int nbCouleurMax){
+    	for(int i=1;i<=nbCouleurMax;i++){
+    		if (noeuds.get(noeudCourant).getListeCouleurDejaUtilisee().contains(i)==false){
+    			return i;
+    		}
+    	}
+    	return -1;
+    
+    }
+    
+    //Calcul le degres de saturation maximal courant du graphe representé par la matrice d'adjacence. 
+    public static int calculLeDegresDeSaturationMaxDuGraphEtDeChaqueNoeud(Map<Integer, Noeud> noeuds,int matriceAdjacence[][]){
+    	int degresDeSaturationMax=0;
+    	int degresDeSaturationDuNoeud;
+    	int degresDuNoeud;
+    	for(int i=0;i<noeuds.size();i++){
+    		degresDeSaturationDuNoeud=0;
+    		degresDuNoeud=0;
+    		for (int j=0;j<noeuds.size();j++){
+    			//Si il y a un arc entre i et j et que i est différent de j alors
+    			if(matriceAdjacence[i][j]==1 && i != j){
+    				//Si le noeud j a une couleur 
+    				degresDuNoeud++;
+    				if(noeuds.get(j).getCouleurCourante()!= 0  ){
+    					
+    					degresDeSaturationDuNoeud++;
+    				}
+    			}
+    		}
+    		noeuds.get(i).setDegres(degresDuNoeud);
+    		noeuds.get(i).setDegresDeSaturation(degresDeSaturationDuNoeud);
+    		//Si le degres du noeud i est supérieur au degres max
+    		if (degresDeSaturationDuNoeud>degresDeSaturationMax && noeuds.get(i).getCouleurCourante()==0){
+    			degresDeSaturationMax=degresDeSaturationDuNoeud;
+    		}
+    	}
+    	
+    	return degresDeSaturationMax;
+    }
+    //Retourne le premier noeuds(index) rencontrer avec le degres donnée en paramètre
+    public static int getIndexNoeudByDegres(ArrayList<Noeud> noeudsParDegresDeSaturation, int degres){
+    	for(int i=0;i<noeudsParDegresDeSaturation.size();i++){
+    		if (noeudsParDegresDeSaturation.get(i).getDegres()==degres){
+    			return noeudsParDegresDeSaturation.get(i).getNumeroNoeud();
+    		}
+    	}
+    
+    	return -1;
+    
+    }
+    
+    public static ArrayList<Noeud> getNoeudsByDegresDeSaturation(Map<Integer, Noeud> noeuds,int degresDeSaturationMax){
+    	ArrayList<Noeud> noeudsDegresDeSaturation = new ArrayList<Noeud>();
+    	for (int i=0;i<noeuds.size();i++){
+    		if(noeuds.get(i).getDegresDeSaturation()==degresDeSaturationMax && noeuds.get(i).getCouleurCourante()==0){
+    			
+    			noeudsDegresDeSaturation.add(noeuds.get(i));
+    		}
+		}
+    	
+    	
+    	return noeudsDegresDeSaturation;
+    }
+    
+    public static int calculDegresLePlusEleve(ArrayList<Noeud> noeudsParDegresDeSaturation){
+    	int degresLePlusEleve=0;
+    	
+    	for (int i=0;i<noeudsParDegresDeSaturation.size();i++){    		
+    			if(noeudsParDegresDeSaturation.get(i).getDegres()>degresLePlusEleve){
+    				degresLePlusEleve=noeudsParDegresDeSaturation.get(i).getDegres();
+    			}
+    		}
+    	return degresLePlusEleve;
+    	}
+    	
+    
+    
+    public static ArrayList<Integer> getCouleursDesVoisins(Map<Integer, Noeud> noeuds,int matriceAdjacence[][],int indexNoeud){
+    	ArrayList<Integer> couleursDesVoisins = new ArrayList<Integer>();
+    	for (int j=0;j<noeuds.size();j++){
+    		
+    		if(matriceAdjacence[indexNoeud][j]==1&& indexNoeud !=j && noeuds.get(j).getCouleurCourante()!=0){
+    			couleursDesVoisins.add(noeuds.get(j).getCouleurCourante());
+    			
+    		}
+    	}
+    	
+    	return couleursDesVoisins;
+    }
+    
+    public static int getCouleurLaPlusPetiteDisponible(ArrayList<Integer> couleursDesVoisins,int nbCouleurMax){
+    	for(int i=1;i<=nbCouleurMax;i++){
+    		if (!couleursDesVoisins.contains(i)){
+    			return i;
+    		}
+    	}
+    	return -1;
+    
+    }
+ // ----------------------------------------------------------------------------------LES ALGOS ----------------------------------------------------------------------------------   
+    
+    public static Map<Integer, Noeud> dsature(int matriceAdjacence[][]){
     	//Initialisation
-    	Map<Integer, NoeudCouleur> noeuds = new HashMap<Integer, NoeudCouleur>();
+    	int degresDeSaturationMaxCourant=0;
+    	int degresLePlusEleve=0;
+    	ArrayList<Noeud> noeudsParDegresDeSaturation = new ArrayList<Noeud>();
+    	ArrayList<Integer> couleursDesVoisins = new ArrayList<Integer>();
+    	Map<Integer, Noeud> noeuds = new HashMap<Integer, Noeud>();
     	int taille = matriceAdjacence[0].length;
     	int nbCouleurMax = calculNombreChromatique(matriceAdjacence);
     	
     	for (int i=0;i<taille;i++){
-			NoeudCouleur noeud = new NoeudCouleur();
+    		Noeud noeud = new Noeud();
+			noeud.setNumeroNoeud(i);
+			noeuds.put(i, noeud);
+		}
+    	//Ne s'arrête pas tant que tous les noeuds ne sont pas coloriés
+    	while (false == areAllColored(noeuds)){
+    		
+    		//On calcul le degres de saturation max courant pour les noeuds non colorié
+    		degresDeSaturationMaxCourant=calculLeDegresDeSaturationMaxDuGraphEtDeChaqueNoeud(noeuds,matriceAdjacence);
+    		
+    		//Ensuite on récupère ces noeuds encore non coloriés qui possède ce degres de saturation
+    		noeudsParDegresDeSaturation=getNoeudsByDegresDeSaturation(noeuds,degresDeSaturationMaxCourant);
+    		
+    		//Si il y a des égalités (En gros si on récupère plus d'un noeud) : 
+    		if(noeudsParDegresDeSaturation.size()>1){
+    			//On priorise par degres le plus eleve
+    			//Donc on calcul le degres le plus eleve des noeuds présent dans la liste choisies 
+    			degresLePlusEleve=calculDegresLePlusEleve(noeudsParDegresDeSaturation);
+    			//Puis on choisi le premier noeud avec ce degres dans la liste
+    			int indexNoeud=getIndexNoeudByDegres(noeudsParDegresDeSaturation,degresLePlusEleve); 
+    			
+    			//On récupère la couleur de ces voisins
+    			couleursDesVoisins = getCouleursDesVoisins(noeuds,matriceAdjacence,indexNoeud); 
+    			
+    			//Puis on colorie avec la couleurs la plus petite disponible ( cette couleur est trouvé par la fonction "getCouleurLaPlusPetiteDisponible")
+    			noeuds.get(indexNoeud).setCouleurCourante(getCouleurLaPlusPetiteDisponible(couleursDesVoisins,nbCouleurMax));
+    		
+    			
+    		}
+    		else if(noeudsParDegresDeSaturation.size()==1){
+    			//Pas besoin de priorisé, on calcul directement la couleur la plus petite disponible du noeuds et on le colorie avec cette dernière.
+    			int indexNoeud=noeudsParDegresDeSaturation.get(0).getNumeroNoeud();
+    			couleursDesVoisins = getCouleursDesVoisins(noeuds,matriceAdjacence,indexNoeud); 
+    			noeuds.get(indexNoeud).setCouleurCourante(getCouleurLaPlusPetiteDisponible(couleursDesVoisins,indexNoeud));
+    		}
+    	}
+    	
+    	
+    	
+    	return noeuds;
+    }
+    
+    public static Map<Integer, Noeud> backtrackingSequentialColoring(int matriceAdjacence[][]){
+    	//Initialisation
+    	Map<Integer, Noeud> noeuds = new HashMap<Integer, Noeud>();
+    	int taille = matriceAdjacence[0].length;
+    	int nbCouleurMax = calculNombreChromatique(matriceAdjacence);
+    	
+    	for (int i=0;i<taille;i++){
+    		Noeud noeud = new Noeud();
 			noeuds.put(i, noeud);
 		}
     	
@@ -175,7 +356,7 @@ public class App
     	return noeuds;
     }
 
-    public static void   algoRecursifBacktracking(Map<Integer, NoeudCouleur> noeuds,int matriceAdjacence[][],int nbCouleurMax){
+    public static void   algoRecursifBacktracking(Map<Integer, Noeud> noeuds,int matriceAdjacence[][],int nbCouleurMax){
     	int noeudCourant=0;
     	int nbNoeud = matriceAdjacence[0].length;
   
@@ -214,191 +395,19 @@ public class App
     		algoRecursifBacktracking(noeuds,matriceAdjacence,nbCouleurMax);
     	}
     	else{
-    		//Si c'est vrai on a juste à rappeler l'algo xD lol 
+    		//Si c'est vrai on regarde si tous les noeuds sont coloriés
+    		//Si c'est le cas, alors on sort de la boucle récursive
     		if(areAllColored(noeuds)==true){
     			return;
     		}
+    		//Sinon on rappelle la fonction récursive.
     		algoRecursifBacktracking(noeuds,matriceAdjacence,nbCouleurMax);
     	}
     	
     	
 		
     }
-    
-    //Fonction qui check si tous les noeuds du graphe sont coloriées, return true si c'est le cas, false sinon.
-    public static boolean areAllColored(Map<Integer, NoeudCouleur> noeuds){
-    	int compteurDeNoeudColorier=0;
-    	for (int i=0;i<noeuds.size();i++){
-    		//On check si la couleur est différente de la couleur neutre.
-    		if( noeuds.get(i).getCouleurCourante() > 0  ){
-    			compteurDeNoeudColorier++;
-    		}
-    	}
-    	//Si le nombre de noeuds est égale au compteur alors on renvoie true..
-    	if(compteurDeNoeudColorier==noeuds.size())
-    		return true;
-    	
-    	else
-    		return false;
-    	
-    }
-    public static int getIndexPremierNoeudNonColorier(Map<Integer, NoeudCouleur> noeuds){
-    	for(int i=0;i<noeuds.size();i++){
-    		if (noeuds.get(i).getCouleurCourante()==0){
-    			return i;
-    		}
-    	}
-    
-    	return -1;
-    }
-    public static int getIndexPremiereCouleurNonDejaUtilise(Map<Integer, NoeudCouleur> noeuds, int noeudCourant,int nbCouleurMax){
-    	for(int i=1;i<=nbCouleurMax;i++){
-    		if (noeuds.get(noeudCourant).getListeCouleurDejaUtilisee().contains(i)==false){
-    			return i;
-    		}
-    	}
-    	return -1;
-    
-    }
-    
-    //Calcul le degres de saturation maximal courant du graphe representé par la matrice d'adjacence. 
-    public static int calculLeDegresDeSaturationMaxDuGraphEtDeChaqueNoeud(Map<Integer, NoeudCouleur> noeuds,int matriceAdjacence[][]){
-    	int degresDeSaturationMax=0;
-    	int degresDeSaturationDuNoeud;
-    	int degresDuNoeud;
-    	for(int i=0;i<noeuds.size();i++){
-    		degresDeSaturationDuNoeud=0;
-    		degresDuNoeud=0;
-    		for (int j=0;j<noeuds.size();j++){
-    			//Si il y a un arc entre i et j et que i est différent de j alors
-    			if(matriceAdjacence[i][j]==1 && i != j){
-    				//Si le noeud j a une couleur 
-    				degresDuNoeud++;
-    				if(noeuds.get(j).getCouleurCourante()!= 0  ){
-    					
-    					degresDeSaturationDuNoeud++;
-    				}
-    			}
-    		}
-    		noeuds.get(i).setDegres(degresDuNoeud);
-    		noeuds.get(i).setDegresDeSaturation(degresDeSaturationDuNoeud);
-    		//Si le degres du noeud i est supérieur au degres max
-    		if (degresDeSaturationDuNoeud>degresDeSaturationMax && noeuds.get(i).getCouleurCourante()==0){
-    			degresDeSaturationMax=degresDeSaturationDuNoeud;
-    		}
-    	}
-    	
-    	return degresDeSaturationMax;
-    }
-    //Retourne le premier noeuds(index) rencontrer avec le degres donnée en paramètre
-    public static int getIndexNoeudByDegres(ArrayList<NoeudCouleur> noeudsParDegresDeSaturation, int degres){
-    	for(int i=0;i<noeudsParDegresDeSaturation.size();i++){
-    		if (noeudsParDegresDeSaturation.get(i).getDegres()==degres){
-    			return noeudsParDegresDeSaturation.get(i).getNumeroNoeud();
-    		}
-    	}
-    
-    	return -1;
-    
-    }
-    
-    public static ArrayList<NoeudCouleur> getNoeudsByDegresDeSaturation(Map<Integer, NoeudCouleur> noeuds,int degresDeSaturationMax){
-    	ArrayList<NoeudCouleur> noeudsDegresDeSaturation = new ArrayList<NoeudCouleur>();
-    	for (int i=0;i<noeuds.size();i++){
-    		if(noeuds.get(i).getDegresDeSaturation()==degresDeSaturationMax && noeuds.get(i).getCouleurCourante()==0){
-    			
-    			noeudsDegresDeSaturation.add(noeuds.get(i));
-    		}
-		}
-    	
-    	
-    	return noeudsDegresDeSaturation;
-    }
-    
-    public static int calculDegresLePlusEleve(ArrayList<NoeudCouleur> noeudsParDegresDeSaturation){
-    	int degresLePlusEleve=0;
-    	
-    	for (int i=0;i<noeudsParDegresDeSaturation.size();i++){    		
-    			if(noeudsParDegresDeSaturation.get(i).getDegres()>degresLePlusEleve){
-    				degresLePlusEleve=noeudsParDegresDeSaturation.get(i).getDegres();
-    			}
-    		}
-    	return degresLePlusEleve;
-    	}
-    	
-    
-    
-    public static ArrayList<Integer> getCouleursDesVoisins(Map<Integer, NoeudCouleur> noeuds,int matriceAdjacence[][],int indexNoeud){
-    	ArrayList<Integer> couleursDesVoisins = new ArrayList<Integer>();
-    	for (int j=0;j<noeuds.size();j++){
-    		
-    		if(matriceAdjacence[indexNoeud][j]==1&& indexNoeud !=j && noeuds.get(j).getCouleurCourante()!=0){
-    			couleursDesVoisins.add(noeuds.get(j).getCouleurCourante());
-    			
-    		}
-    	}
-    	
-    	return couleursDesVoisins;
-    }
-    
-    public static int getCouleurLaPlusPetiteDisponible(ArrayList<Integer> couleursDesVoisins,int nbCouleurMax){
-    	for(int i=1;i<=nbCouleurMax;i++){
-    		if (!couleursDesVoisins.contains(i)){
-    			return i;
-    		}
-    	}
-    	return -1;
-    
-    }
-    
-    
-    public static Map<Integer, NoeudCouleur> dsature(int matriceAdjacence[][]){
-    	//Initialisation
-    	int degresDeSaturationMaxCourant=0;
-    	int degresLePlusEleve=0;
-    	ArrayList<NoeudCouleur> noeudsParDegresDeSaturation = new ArrayList<NoeudCouleur>();
-    	ArrayList<Integer> couleursDesVoisins = new ArrayList<Integer>();
-    	Map<Integer, NoeudCouleur> noeuds = new HashMap<Integer, NoeudCouleur>();
-    	int taille = matriceAdjacence[0].length;
-    	int nbCouleurMax = calculNombreChromatique(matriceAdjacence);
-    	
-    	for (int i=0;i<taille;i++){
-			NoeudCouleur noeud = new NoeudCouleur();
-			noeud.setNumeroNoeud(i);
-			noeuds.put(i, noeud);
-		}
-    	//Ne s'arrête pas tant que tous les noeuds ne sont pas coloriés
-    	while (false == areAllColored(noeuds)){
-    		degresDeSaturationMaxCourant=calculLeDegresDeSaturationMaxDuGraphEtDeChaqueNoeud(noeuds,matriceAdjacence);
-    		//System.out.println("Degres de Saturation max ="+degresDeSaturationMaxCourant);
-    		noeudsParDegresDeSaturation=getNoeudsByDegresDeSaturation(noeuds,degresDeSaturationMaxCourant);
-    		//System.out.println("nombre de noeuds dans la liste : "+ noeudsParDegresDeSaturation.size());
-    		//Si il y a des égalités : 
-    		if(noeudsParDegresDeSaturation.size()>1){
-    			//On priorise
-    			degresLePlusEleve=calculDegresLePlusEleve(noeudsParDegresDeSaturation);
-    			int indexNoeud=getIndexNoeudByDegres(noeudsParDegresDeSaturation,degresLePlusEleve); 
-    			
-    			couleursDesVoisins = getCouleursDesVoisins(noeuds,matriceAdjacence,indexNoeud); 
-    			noeuds.get(indexNoeud).setCouleurCourante(getCouleurLaPlusPetiteDisponible(couleursDesVoisins,nbCouleurMax));
-    		
-    			//et on colorie
-    			
-    		}
-    		else if(noeudsParDegresDeSaturation.size()==1){
-    			//Pas besoin de priorisé
-    			int indexNoeud=noeudsParDegresDeSaturation.get(0).getNumeroNoeud();
-    			couleursDesVoisins = getCouleursDesVoisins(noeuds,matriceAdjacence,indexNoeud); 
-    			noeuds.get(indexNoeud).setCouleurCourante(getCouleurLaPlusPetiteDisponible(couleursDesVoisins,indexNoeud));
-    		}
-    	}
-    	
-    	
-    	
-    	return noeuds;
-    }
-    
-    
+
     
     
     

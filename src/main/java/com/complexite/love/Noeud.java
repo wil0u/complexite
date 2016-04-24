@@ -1,39 +1,74 @@
 package com.complexite.love;
 
-import java.util.LinkedList;
-import java.util.ListIterator;
+import java.util.ArrayList;
 
 public class Noeud {
-	   String nom;
-	   public String getNom() {
-	    return nom;
-	   }
+	int couleurCourante;
+	int numeroNoeud;
+	int degresDeSaturation;
+	int degres;
+	ArrayList<Integer> listeCouleurDejaUtilisee = new ArrayList<Integer>();
+	
+	
+	public int getDegres() {
+		return degres;
+	}
 
-	   Graphe graphe;
+	public void setDegres(int degres) {
+		this.degres = degres;
+	}
 
-	   public Noeud (String nom, Graphe graphe){
-	    this.nom = nom;
-	    this.graphe = graphe;
-	    graphe.listeNoeuds.add(this);
-	   }
+	public int getCouleurCourante() {
+		return couleurCourante;
+	}
 
-	   public String toString(){
-	    return new String("   noeud: "+ this.getNom());
-	   }
+	public int getDegresDeSaturation() {
+		return degresDeSaturation;
+	}
 
-	   public Object[] getChildren( Noeud noeud){
-	    LinkedList<Noeud> children = new LinkedList<Noeud> ();
-	    ListIterator<Arc> liArc = graphe.listeArcs.listIterator();
-	    while (liArc.hasNext()){
-	       Arc arcCourant = liArc.next();
-	       if (arcCourant.getNoeudOrigine().getNom().equals(noeud.getNom())){
-	        children.add(arcCourant.getNoeudExtremite());
-	       }
-	    }
-	    return children.toArray();
-	   }
 
-	   public Boolean hasChildren(){
-	    return (getChildren(this).length != 0 );
-	   }
+	public void setDegresDeSaturation(int degresDeSaturation) {
+		this.degresDeSaturation = degresDeSaturation;
+	}
+	public void setCouleurCourante(int couleurCourante) {
+		this.couleurCourante = couleurCourante;
+		if(couleurCourante!=0)
+			this.listeCouleurDejaUtilisee.add(couleurCourante);
+	}
+
+
+	public ArrayList<Integer> getListeCouleurDejaUtilisee() {
+		return listeCouleurDejaUtilisee;
+	}
+
+
+	public void setListeCouleurDejaUtilisee(ArrayList<Integer> listeCouleurDejaUtilisee) {
+		this.listeCouleurDejaUtilisee = listeCouleurDejaUtilisee;
+	}
+
+	
+	
+	
+	public Noeud(int numeroCouleur, int numeroNoeud) {
+		super();
+		this.couleurCourante = numeroCouleur;
+		this.numeroNoeud = numeroNoeud;
+	}
+	
+	
+	public Noeud() {
+		this.couleurCourante=0;
+	}
+
+
+	
+	public int getNumeroNoeud() {
+		return numeroNoeud;
+	}
+	public void setNumeroNoeud(int numeroNoeud) {
+		this.numeroNoeud = numeroNoeud;
+	}
+
+
+
 }
