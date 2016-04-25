@@ -118,21 +118,23 @@ public class App
     		
     		//Tamere
     		//Graphe  de Petersen
+    		
     		int coucou[][] =  {{0, 1, 0,0,1,0, 1, 0,0,0}   ,   {1, 0, 1,0,0,0, 0, 1,0,0}  ,   {0, 1, 0,1,0,0, 0, 0,1,0},   {0,0, 1,0,1,0, 0, 0,0,1},   {1, 0, 0,1,0,1, 0, 0,0,0},   {0, 0, 0,0,1,0, 0, 1,1,0},   {1, 0, 0,0,0,0,0,0,1,1},   {0, 1, 0,0,0,1, 0, 0,0,1},   {0, 0, 1,0,0,1, 1, 0,0,0},   {0, 0, 0,1,0,0, 1, 1,0,0}};
+    		int graphbizarre[][] = { {0, 1, 1,1,1,1}   ,{1, 0, 0,0,0,0}   ,{1,0, 0,0,0,0}   ,{1, 0, 0,0,0,0}   ,{1, 0, 0,0,0,0}   ,{1, 0, 0,0,0,0}    };
     		System.out.println(calculNombreChromatique(coucou));
     		Map<Integer, Noeud> noeuds;
-    		noeuds = backtrackingSequentialColoring(coucou);
+    		noeuds = backtrackingSequentialColoring(graphbizarre);
     		System.out.println("--------BSC--------");
     		for(int i=0;i<noeuds.size();i++){
         		System.out.println("Couleur Du noeud"+i+" est :"+noeuds.get(i).getCouleurCourante());
         	}
     		System.out.println("--------DSATURE--------");
-    		dsature(coucou);
+    		noeuds = dsature(graphbizarre);
     		for(int i=0;i<noeuds.size();i++){
         		System.out.println("Couleur Du noeud"+i+" est :"+noeuds.get(i).getCouleurCourante());
         	}
     		System.out.println("--------TABUCOL--------");
-    		tabucol(coucou);
+    		noeuds = tabucol(graphbizarre);
     		for(int i=0;i<noeuds.size();i++){
         		System.out.println("Couleur Du noeud"+i+" est :"+noeuds.get(i).getCouleurCourante());
         	}
@@ -481,10 +483,9 @@ public class App
     	ArrayList<Conflit> conflitsTampon = new ArrayList<Conflit>();
     	//Colorier les noeuds du graphe de manière arbitraire
     	Random random = new Random();
-    	int couleurAleatoire;
+    	int couleurAleatoire = 1;
     	for (int i=0;i<taille;i++){
     		Noeud noeud = new Noeud();
-    		couleurAleatoire = random.nextInt(nbCouleurMax)+1;
     		noeud.setNumeroNoeud(i);
     		noeud.setCouleurCourante(couleurAleatoire);
 			noeuds.put(i, noeud);
@@ -520,34 +521,42 @@ public class App
     	ArrayList<Integer> couleurVoisinNoeud2 = new ArrayList<Integer>();
     	boolean contientConflitsDifficile=false;
     	int indiceConflitDifficile=0;
-    
+    	int nbConflitCourant1;
+    	LeMeilleurChoixPossible lmcp;
     	//TODO : en modifiant la couleurs d'un noeud je modifie directement tous les autres conflits donc ma liste n'est forcément plus correcte
     	//TODO : il faut différencier les conflits qui génèrent des conflits à ce qui ne le font pas 
     	//TODO : l'idée serait de continuer la boucle for tant que le conflit est facile et qu'il n'engendre pas d'autre conflit
     	//TODO : si le ocnflit est difficile alors on break en dehors de la boucle et on le résoudd .
     	//TODO : mais qu'est ce qu'un conflit facile ? la suite in the next episode of coding for the noobs 
     	for (int i=0;i<noeuds.size();i++){
-    		LeMeilleurChoixPossible lmcp = new LeMeilleurChoixPossible();
+    		lmcp= new LeMeilleurChoixPossible();
     		lmcp.setCouleur(noeuds.get(i).getCouleurCourante());
     		lmcp.setNbConflit(nombreDeConflitAssocieAuNoeud(noeuds.get(i),matriceAdjacence,noeuds));
     		for(int j=1;j<=nbCouleurMax;j++){
     				if(!noeuds.get(i).getListeCouleurTaboue().contains(j)){
-    					
+    					noeuds.get(i).setCouleurCourante(j);
+    					nbConflitCourant1 = nombreDeConflitAssocieAuNoeud(noeuds.get(i),matriceAdjacence,noeuds);
+    					if(nbConflitCourant1<lmcp.getNbConflit()){
+    						lmcp.setNbConflit(nbConflitCourant1);
+    						lmcp.setCouleur(j);
+    						
+    					}
     				}
-    				System.out.println("Le nombre de  conflit du noeud"+ noeuds.get(i).getNumeroNoeud()+" = "+nombreDeConflitAssocieAuNoeud(noeuds.get(i),matriceAdjacence,noeuds));
+    				
         		}
-        				
+    		
+    		noeuds.get(i).setCouleurCourante(lmcp.getCouleur());
+    		noeuds.get(i).addCouleurTaboue(lmcp.getCouleur());
+    	
         	}
-    	}
-    	
-    	
-    	
-    	
-    	System.out.println("nombre de conflit :"+calculLeNombreDeConflit(noeuds,matriceAdjacence,nbCouleurMax).size());
     	nbConflitCourant=calculLeNombreDeConflit(noeuds,matriceAdjacence,nbCouleurMax).size();
-    	for(int i=0;i<noeuds.size();i++){
-    		System.out.println("Couleur Du noeud"+i+" est :"+noeuds.get(i).getCouleurCourante());
     	}
+    	
+    	
+    	
+    	
+    	
+    	
     
     	//System.out.println("Le meilleur choix possible est de colorier le noeud :"+mcp.getNumeroNoeud()+" avec la couleur"+mcp.getCouleur()+", cela genère "+mcp.getNbConflit()+" conflits");
     	
