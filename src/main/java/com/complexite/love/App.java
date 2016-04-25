@@ -132,7 +132,7 @@ public class App
         		System.out.println("Couleur Du noeud"+i+" est :"+noeuds.get(i).getCouleurCourante());
         	}
     		System.out.println("--------TABUCOL--------");
-    		tabucol(coucou);
+    		//tabucol(coucou);
     		for(int i=0;i<noeuds.size();i++){
         		System.out.println("Couleur Du noeud"+i+" est :"+noeuds.get(i).getCouleurCourante());
         	}
