@@ -5,6 +5,11 @@ import java.awt.BorderLayout;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
+
+import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.util.mxConstants;
+import com.mxgraph.view.mxGraph;
+
 import javax.swing.JButton;
 import java.awt.FlowLayout;
 import java.util.ArrayList;
@@ -17,10 +22,11 @@ import javax.swing.JScrollPane;
 
 public class App 
 {
-
+	static JScrollPane scrollPane = new JScrollPane();
+    static JPanel fenetreCalcul = new JPanel();
     public static void main( String[] args )
     {
-
+    		
 /**==================================================== Edition generale de la fenetre =================================================**/
     		// Création de la variable fenetre
     		JFrame fenetre = new JFrame();
@@ -43,25 +49,9 @@ public class App
 
  /**==================================================== Edition fenetre Calcul ========================================================**/    	    
     	    //Création de l'onglet fenetreCalcul
-    	    JPanel fenetreCalcul = new JPanel();
+
     	    tabbedPane.addTab("Calcul", null, fenetreCalcul, null);
     	    fenetreCalcul.setLayout(new BorderLayout(0, 0));
-    	    
-    	    // Ajout de la partie permettant de selectionner Nb Noeud en haut de la fenetre
-    	    JPanel panelNbNoeud = new JPanel();
-    	    FlowLayout flowLayout = (FlowLayout) panelNbNoeud.getLayout();
-    	    flowLayout.setAlignment(FlowLayout.LEFT);
-    	    fenetreCalcul.add(panelNbNoeud, BorderLayout.NORTH);
-    	    
-    	    JLabel lblNbNoeud = new JLabel("          Nb Noeud : ");
-    	    panelNbNoeud.add(lblNbNoeud);
-    	    
-    	    JTextField textNbNoeud = new JTextField();
-    	    panelNbNoeud.add(textNbNoeud);
-    	    textNbNoeud.setColumns(5);
-    	    
-    	    JButton btnNbNoeud = new JButton("Valider");
-    	    panelNbNoeud.add(btnNbNoeud);
     	    
     	    
     	    // Panel permettant de faire un vide sur la gauche
@@ -100,8 +90,11 @@ public class App
     	    JButton btnConfirmerTABUCOL = new JButton("TABUCOL");
     	    panelConfirmer.add(btnConfirmerTABUCOL);
     	    
-    	    JScrollPane scrollPane = new JScrollPane();
-    	    fenetreCalcul.add(scrollPane, BorderLayout.CENTER);
+    	    
+    	    
+    	    
+    	    
+    	   
     	    
     	    
 /**==================================================== Edition fenetre Graphe ========================================================**/
@@ -121,13 +114,70 @@ public class App
     		
     		int coucou[][] =  {{0, 1, 0,0,1,0, 1, 0,0,0}   ,   {1, 0, 1,0,0,0, 0, 1,0,0}  ,   {0, 1, 0,1,0,0, 0, 0,1,0},   {0,0, 1,0,1,0, 0, 0,0,1},   {1, 0, 0,1,0,1, 0, 0,0,0},   {0, 0, 0,0,1,0, 0, 1,1,0},   {1, 0, 0,0,0,0,0,0,1,1},   {0, 1, 0,0,0,1, 0, 0,0,1},   {0, 0, 1,0,0,1, 1, 0,0,0},   {0, 0, 0,1,0,0, 1, 1,0,0}};
     		int graphbizarre[][] = { {0, 1, 1,1,1,1}   ,{1, 0, 0,0,0,0}   ,{1,0, 0,0,0,0}   ,{1, 0, 0,0,0,0}   ,{1, 0, 0,0,0,0}   ,{1, 0, 0,0,0,0}    };
+    
+    		
+    /*================================== CREATION D'UN GRAPHE ========================================================== */   		
+    		mxGraph graph = new mxGraph();
+      	    Object parent = graph.getDefaultParent();
+      	    HashMap hm = new HashMap();
+      	    graph.getModel().beginUpdate();
+    		
     		System.out.println(calculNombreChromatique(coucou));
     		Map<Integer, Noeud> noeuds;
     		noeuds = backtrackingSequentialColoring(graphbizarre);
     		System.out.println("--------BSC--------");
+    		try {
+    		int j = 20;
     		for(int i=0;i<noeuds.size();i++){
         		System.out.println("Couleur Du noeud"+i+" est :"+noeuds.get(i).getCouleurCourante());
+        		
+        		// Coloration des sommets du graphe
+        		String colorVertex = new String();
+        		switch (noeuds.get(i).getCouleurCourante()){
+        		
+        		   case 0:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#C7C8C8"; 
+        				    break;
+	        	   case 1:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#FE3232"; 
+	                		break;
+			       case 2:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#F132FE";
+			                break;
+			       case 3:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#3254FE";
+			                break;
+			       case 4:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#32F1FE";
+			                break;
+			       case 5:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#32FE69";
+			                break;
+			       case 6:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#FEFE32";
+			                break;
+			       case 7:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#FEA100";
+			                break;
+			       case 8:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#00F693";
+			                break;	
+        		}
+        		// Création d'un sommet du graphe
+        		hm.put("v"+i, graph.insertVertex(parent, null, i, j, 20, 40, 40, colorVertex));  
+        		j = j + 80;
+        		
+        		// Création des arcs
+        		for(int k=0;k<noeuds.size();k++){	
+	    			if (graphbizarre[i][k]== 1 ){ 
+	    				graph.insertEdge(parent, null, "", (Object)hm.get("v"+i), (Object)hm.get("v"+k));
+	    				graph.insertEdge(parent, null, "", (Object)hm.get("v"+k), (Object)hm.get("v"+i));
+	    			}
+	    		}
         	}
+ }
+    		
+		     finally {
+		      graph.getModel().endUpdate();
+		    }   	 
+		    mxGraphComponent graphComponent = new mxGraphComponent(graph);
+		    
+		    scrollPane = new JScrollPane(graphComponent);
+		    fenetreCalcul.add(scrollPane, BorderLayout.CENTER);
+   /*============================================================================================= */  		
+
+		    
     		System.out.println("--------DSATURE--------");
     		noeuds = dsature(graphbizarre);
     		for(int i=0;i<noeuds.size();i++){
