@@ -18,12 +18,18 @@ import java.util.Map;
 import java.util.Random;
 
 import javax.swing.JScrollPane;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 
 public class App 
 {
 	static JScrollPane scrollPane = new JScrollPane();
+
     static JPanel fenetreCalcul = new JPanel();
+    static int matrix1[][] =  {{0, 1, 0,0,1,0, 1, 0,0,0}   ,   {1, 0, 1,0,0,0, 0, 1,0,0}  ,   {0, 1, 0,1,0,0, 0, 0,1,0},   {0,0, 1,0,1,0, 0, 0,0,1},   {1, 0, 0,1,0,1, 0, 0,0,0},   {0, 0, 0,0,1,0, 0, 1,1,0},   {1, 0, 0,0,0,0,0,0,1,1},   {0, 1, 0,0,0,1, 0, 0,0,1},   {0, 0, 1,0,0,1, 1, 0,0,0},   {0, 0, 0,1,0,0, 1, 1,0,0}};
+	static int matrix2[][] = { {0, 1, 1,1,1,1}   ,{1, 0, 0,0,0,0}   ,{1,0, 0,0,0,0}   ,{1, 0, 0,0,0,0}   ,{1, 0, 0,0,0,0}   ,{1, 0, 0,0,0,0}    };
+
     public static void main( String[] args )
     {
     		
@@ -35,7 +41,7 @@ public class App
     	    fenetre.setTitle("Coloration de Graphe");
     	    
     	    // Taille de la fenetre
-    	    fenetre.setSize(700, 400);
+    	    fenetre.setSize(1000, 600);
     	    
     	    //Positionnement de la fenetre au centre
     	    fenetre.setLocationRelativeTo(null);
@@ -76,18 +82,42 @@ public class App
     	    panelConfirmer.add(lblConfirmerLancement);
     	    
     	    JButton btnConfirmerBSC = new JButton("     BSC     ");
+    	    btnConfirmerBSC.addMouseListener(new MouseAdapter() {
+    	    	@Override
+    	    	public void mouseClicked(MouseEvent arg0) {
+    		   		Map<Integer, Noeud> noeuds;
+		    		noeuds = backtrackingSequentialColoring(matrix1);
+		    		drawGraph(matrix1,noeuds);
+    	    	}
+    	    });
     	    panelConfirmer.add(btnConfirmerBSC);
     	    
     	    JLabel lblConfirmerVide01 = new JLabel("               ");
     	    panelConfirmer.add(lblConfirmerVide01);
     	    
     	    JButton btnConfirmerDSATUR = new JButton(" DSATUR ");
+    	    btnConfirmerDSATUR.addMouseListener(new MouseAdapter() {
+    	    	@Override
+    	    	public void mouseClicked(MouseEvent arg0) {
+    		   		Map<Integer, Noeud> noeuds;
+		    		noeuds = dsature(matrix1);
+		    		drawGraph(matrix1,noeuds);
+    	    	}
+    	    });
     	    panelConfirmer.add(btnConfirmerDSATUR);
     	    
     	    JLabel lblConfirmerVide02 = new JLabel("               ");
     	    panelConfirmer.add(lblConfirmerVide02);
     	    
     	    JButton btnConfirmerTABUCOL = new JButton("TABUCOL");
+    	    btnConfirmerTABUCOL.addMouseListener(new MouseAdapter() {
+    	    	@Override
+    	    	public void mouseClicked(MouseEvent e) {
+    		   		Map<Integer, Noeud> noeuds;
+		    		noeuds = tabucol(matrix1);
+		    		drawGraph(matrix1,noeuds);
+    	    	}
+    	    });
     	    panelConfirmer.add(btnConfirmerTABUCOL);
     	    
     	    
@@ -108,17 +138,14 @@ public class App
     		// Affichage de la fenêtre
     		fenetre.setVisible(true);
     		
-    		
+   /*	
     		//Tamere
     		//Graphe  de Petersen
-    		
-    		int coucou[][] =  {{0, 1, 0,0,1,0, 1, 0,0,0}   ,   {1, 0, 1,0,0,0, 0, 1,0,0}  ,   {0, 1, 0,1,0,0, 0, 0,1,0},   {0,0, 1,0,1,0, 0, 0,0,1},   {1, 0, 0,1,0,1, 0, 0,0,0},   {0, 0, 0,0,1,0, 0, 1,1,0},   {1, 0, 0,0,0,0,0,0,1,1},   {0, 1, 0,0,0,1, 0, 0,0,1},   {0, 0, 1,0,0,1, 1, 0,0,0},   {0, 0, 0,1,0,0, 1, 1,0,0}};
-    		int graphbizarre[][] = { {0, 1, 1,1,1,1}   ,{1, 0, 0,0,0,0}   ,{1,0, 0,0,0,0}   ,{1, 0, 0,0,0,0}   ,{1, 0, 0,0,0,0}   ,{1, 0, 0,0,0,0}    };
-    		Map<Integer, Noeud> noeuds;
+	   		Map<Integer, Noeud> noeuds;
     		noeuds = backtrackingSequentialColoring(coucou);
-    		noeuds = dsature(graphbizarre);
-    		drawGraph(graphbizarre,noeuds);
-    /*================================== CREATION D'UN GRAPHE ==========================================================    		
+    		noeuds = dsature(coucou);
+
+   ================================== CREATION D'UN GRAPHE ==========================================================    		
     		mxGraph graph = new mxGraph();
       	    Object parent = graph.getDefaultParent();
       	    HashMap hm = new HashMap();
@@ -178,7 +205,7 @@ public class App
 		    
 		    scrollPane = new JScrollPane(graphComponent);
 		    fenetreCalcul.add(scrollPane, BorderLayout.CENTER);*/
-   /*============================================================================================= */  		
+   /*=============================================================================================   		
 
 		    
     		System.out.println("--------DSATURE--------");
@@ -186,6 +213,7 @@ public class App
     		for(int i=0;i<noeuds.size();i++){
         		System.out.println("Couleur Du noeud"+i+" est :"+noeuds.get(i).getCouleurCourante());
         	}
+    		//drawGraph(graphbizarre,noeuds);
     		System.out.println("--------TABUCOL--------");
 
     		noeuds = tabucol(graphbizarre);
@@ -193,6 +221,7 @@ public class App
     		for(int i=0;i<noeuds.size();i++){
         		System.out.println("Couleur Du noeud"+i+" est :"+noeuds.get(i).getCouleurCourante());
         	}
+        	*/
     }	
     //--------------------------------------------------------------------------FONCTIONS UTILITAIRES-------------------------------------------------------------------------------------------------
     public static int calculNombreChromatique(int matriceAdjacence[][]){
@@ -218,13 +247,16 @@ public class App
     }
     
     public static void drawGraph(int matriceAdjacence[][],Map<Integer, Noeud> noeuds){
+    	fenetreCalcul.remove(scrollPane);
    		mxGraph graph = new mxGraph();
   	    Object parent = graph.getDefaultParent();
   	    HashMap hm = new HashMap();
-  	    String edgeStyle = mxConstants.STYLE_STARTARROW + "=" + mxConstants.NONE;
+  	    String edgeStyle = mxConstants.STYLE_ENDARROW + "=" + mxConstants.ARROW_OVAL;
   	    graph.getModel().beginUpdate();
 		try {
-		int j = 20;
+		int x=20;
+		int y=20;
+		int indicateur_Position = 0;
 		for(int i=0;i<noeuds.size();i++){
     		System.out.println("Couleur Du noeud"+i+" est :"+noeuds.get(i).getCouleurCourante());
     		
@@ -232,34 +264,65 @@ public class App
     		String colorVertex = new String();
     		switch (noeuds.get(i).getCouleurCourante()){
     		
-    		   case 0:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#C7C8C8"; 
+    		   case 0:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#E2E1E1";
+    		   			
     				    break;
-        	   case 1:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#FE3232"; 
+        	   case 1:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#FE6868"; 
                 		break;
-		       case 2:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#F132FE";
+		       case 2:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#9E87FB";
 		                break;
-		       case 3:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#3254FE";
+		       case 3:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#8BFB87";
 		                break;
-		       case 4:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#32F1FE";
+		       case 4:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#FBF887";
 		                break;
-		       case 5:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#32FE69";
+		       case 5:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#FBCD87";
 		                break;
-		       case 6:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#FEFE32";
+		       case 6:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#87FBF4";
 		                break;
-		       case 7:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#FEA100";
+		       case 7:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#A18B6E";
 		                break;
-		       case 8:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#00F693";
+		       case 8:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#A492A4";
 		                break;	
     		}
     		// Création d'un sommet du graphe
-    		hm.put("v"+i, graph.insertVertex(null, null, i, j, 20, 40, 40, colorVertex));  
-    		j = j + 80;
+    		hm.put("v"+i, graph.insertVertex(null, null, i, x, y, 40, 40, colorVertex+";"+mxConstants.STYLE_SHAPE + "="+mxConstants.SHAPE_ELLIPSE+";"+mxConstants.STYLE_EDITABLE +"=0;" )); 
+    		
+    		
+    		
+    		// Modification du positionnement du prochain sommet
+    		if (indicateur_Position==0){
+    			y = 200;
+    			 x = x + 75;
+    			indicateur_Position = 1;
+    		}
+    		
+    		else if(indicateur_Position==1){
+    			y = 325;
+   			 	x = x + 75;
+   			 	indicateur_Position = 2;
+    		}
+    		
+    		else if(indicateur_Position==2){
+    			y = 425;
+   			 	x = x + 75;
+   			 	indicateur_Position = 3;
+    		}
+    		else{
+    		   y = 20;
+    		   x = x + 75;
+    		    indicateur_Position = 0;
+    		}
+    		
+    		
+    		/* RANDOM Position
+    		 * x = 40 + (int)(Math.random() * ((200 - 40) + 1));
+    		y = 40 + (int)(Math.random() * ((200 - 40) + 1)); */
     		
     		// Création des arcs
     		for(int k=0;k<noeuds.size();k++){	
     			if (matriceAdjacence[i][k]== 1 ){ 
-    				graph.insertEdge(null, null, "", (Object)hm.get("v"+i), (Object)hm.get("v"+k),edgeStyle);
-    				graph.insertEdge(null, null, "", (Object)hm.get("v"+k), (Object)hm.get("v"+i),edgeStyle);
+    				graph.insertEdge(null, null, "", (Object)hm.get("v"+i), (Object)hm.get("v"+k),edgeStyle+";"+mxConstants.STYLE_MOVABLE +"=0" );
+    				graph.insertEdge(null, null, "", (Object)hm.get("v"+k), (Object)hm.get("v"+i),edgeStyle+";"+mxConstants.STYLE_MOVABLE +"=0" );
     			}
     		}
     	}
@@ -268,10 +331,16 @@ public class App
 	     finally {
 	      graph.getModel().endUpdate();
 	    }   	 
+		graph.setCellsEditable(false);
+		graph.setCellsResizable(false);
+		graph.setCellsDisconnectable(false);
+		graph.setAllowDanglingEdges(false);
+		graph.setCellsCloneable(false);
 	    mxGraphComponent graphComponent = new mxGraphComponent(graph);
 	    
 	    scrollPane = new JScrollPane(graphComponent);
 	    fenetreCalcul.add(scrollPane, BorderLayout.CENTER);
+	    fenetreCalcul.revalidate();
     }
        
     //Fonction qui check si tous les noeuds du graphe sont coloriées, return true si c'est le cas, false sinon.
