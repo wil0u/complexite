@@ -114,17 +114,20 @@ public class App
     		
     		int coucou[][] =  {{0, 1, 0,0,1,0, 1, 0,0,0}   ,   {1, 0, 1,0,0,0, 0, 1,0,0}  ,   {0, 1, 0,1,0,0, 0, 0,1,0},   {0,0, 1,0,1,0, 0, 0,0,1},   {1, 0, 0,1,0,1, 0, 0,0,0},   {0, 0, 0,0,1,0, 0, 1,1,0},   {1, 0, 0,0,0,0,0,0,1,1},   {0, 1, 0,0,0,1, 0, 0,0,1},   {0, 0, 1,0,0,1, 1, 0,0,0},   {0, 0, 0,1,0,0, 1, 1,0,0}};
     		int graphbizarre[][] = { {0, 1, 1,1,1,1}   ,{1, 0, 0,0,0,0}   ,{1,0, 0,0,0,0}   ,{1, 0, 0,0,0,0}   ,{1, 0, 0,0,0,0}   ,{1, 0, 0,0,0,0}    };
-    
-    		
-    /*================================== CREATION D'UN GRAPHE ========================================================== */   		
+    		Map<Integer, Noeud> noeuds;
+    		noeuds = backtrackingSequentialColoring(coucou);
+    		noeuds = dsature(graphbizarre);
+    		drawGraph(graphbizarre,noeuds);
+    /*================================== CREATION D'UN GRAPHE ==========================================================    		
     		mxGraph graph = new mxGraph();
       	    Object parent = graph.getDefaultParent();
       	    HashMap hm = new HashMap();
+      	    String edgeStyle = mxConstants.STYLE_STARTARROW + "=" + mxConstants.NONE;
       	    graph.getModel().beginUpdate();
     		
     		System.out.println(calculNombreChromatique(coucou));
     		Map<Integer, Noeud> noeuds;
-    		noeuds = backtrackingSequentialColoring(graphbizarre);
+    		noeuds = backtrackingSequentialColoring(coucou);
     		System.out.println("--------BSC--------");
     		try {
     		int j = 20;
@@ -155,14 +158,14 @@ public class App
 			                break;	
         		}
         		// Création d'un sommet du graphe
-        		hm.put("v"+i, graph.insertVertex(parent, null, i, j, 20, 40, 40, colorVertex));  
+        		hm.put("v"+i, graph.insertVertex(null, null, i, j, 20, 40, 40, colorVertex));  
         		j = j + 80;
         		
         		// Création des arcs
         		for(int k=0;k<noeuds.size();k++){	
-	    			if (graphbizarre[i][k]== 1 ){ 
-	    				graph.insertEdge(parent, null, "", (Object)hm.get("v"+i), (Object)hm.get("v"+k));
-	    				graph.insertEdge(parent, null, "", (Object)hm.get("v"+k), (Object)hm.get("v"+i));
+	    			if (coucou[i][k]== 1 ){ 
+	    				graph.insertEdge(null, null, "", (Object)hm.get("v"+i), (Object)hm.get("v"+k),edgeStyle);
+	    				graph.insertEdge(null, null, "", (Object)hm.get("v"+k), (Object)hm.get("v"+i),edgeStyle);
 	    			}
 	    		}
         	}
@@ -174,7 +177,7 @@ public class App
 		    mxGraphComponent graphComponent = new mxGraphComponent(graph);
 		    
 		    scrollPane = new JScrollPane(graphComponent);
-		    fenetreCalcul.add(scrollPane, BorderLayout.CENTER);
+		    fenetreCalcul.add(scrollPane, BorderLayout.CENTER);*/
    /*============================================================================================= */  		
 
 		    
@@ -214,7 +217,62 @@ public class App
     	return nombreChromatique;
     }
     
-    
+    public static void drawGraph(int matriceAdjacence[][],Map<Integer, Noeud> noeuds){
+   		mxGraph graph = new mxGraph();
+  	    Object parent = graph.getDefaultParent();
+  	    HashMap hm = new HashMap();
+  	    String edgeStyle = mxConstants.STYLE_STARTARROW + "=" + mxConstants.NONE;
+  	    graph.getModel().beginUpdate();
+		try {
+		int j = 20;
+		for(int i=0;i<noeuds.size();i++){
+    		System.out.println("Couleur Du noeud"+i+" est :"+noeuds.get(i).getCouleurCourante());
+    		
+    		// Coloration des sommets du graphe
+    		String colorVertex = new String();
+    		switch (noeuds.get(i).getCouleurCourante()){
+    		
+    		   case 0:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#C7C8C8"; 
+    				    break;
+        	   case 1:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#FE3232"; 
+                		break;
+		       case 2:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#F132FE";
+		                break;
+		       case 3:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#3254FE";
+		                break;
+		       case 4:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#32F1FE";
+		                break;
+		       case 5:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#32FE69";
+		                break;
+		       case 6:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#FEFE32";
+		                break;
+		       case 7:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#FEA100";
+		                break;
+		       case 8:  colorVertex = mxConstants.STYLE_FILLCOLOR + "=#00F693";
+		                break;	
+    		}
+    		// Création d'un sommet du graphe
+    		hm.put("v"+i, graph.insertVertex(null, null, i, j, 20, 40, 40, colorVertex));  
+    		j = j + 80;
+    		
+    		// Création des arcs
+    		for(int k=0;k<noeuds.size();k++){	
+    			if (matriceAdjacence[i][k]== 1 ){ 
+    				graph.insertEdge(null, null, "", (Object)hm.get("v"+i), (Object)hm.get("v"+k),edgeStyle);
+    				graph.insertEdge(null, null, "", (Object)hm.get("v"+k), (Object)hm.get("v"+i),edgeStyle);
+    			}
+    		}
+    	}
+}
+		
+	     finally {
+	      graph.getModel().endUpdate();
+	    }   	 
+	    mxGraphComponent graphComponent = new mxGraphComponent(graph);
+	    
+	    scrollPane = new JScrollPane(graphComponent);
+	    fenetreCalcul.add(scrollPane, BorderLayout.CENTER);
+    }
        
     //Fonction qui check si tous les noeuds du graphe sont coloriées, return true si c'est le cas, false sinon.
     public static boolean areAllColored(Map<Integer, Noeud> noeuds){
