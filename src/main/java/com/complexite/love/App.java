@@ -184,9 +184,22 @@ public class App
     	    btnConfirmerDSATUR.addMouseListener(new MouseAdapter() {
     	    	@Override
     	    	public void mouseClicked(MouseEvent arg0) {
-    		   		Map<Integer, Noeud> noeuds;
-		    		noeuds = dsature(matrix1);
-		    		drawGraph(matrix1,noeuds);
+    	    		if (comboBoxScenario.getSelectedIndex() == 0) {
+    	    			Map<Integer, Noeud> noeuds = dsature(matrix1);
+    					drawGraph(matrix1,noeuds);
+    					System.out.println("cas1 ");
+    	    		}
+    	    		
+    	    		else if (comboBoxScenario.getSelectedIndex() == 1) {
+    	    			Map<Integer, Noeud> noeuds1 = dsature(matrix2);
+    					drawGraph(matrix2,noeuds1);
+    					System.out.println("cas2 ");
+    	    		}
+    	    		
+    	    		else {
+    	    			 Map<Integer, Noeud> noeuds2 = dsature(matrix3);
+	    				drawGraph(matrix3,noeuds2);System.out.println("cas3");
+    	    		}
     	    	}
     	    });
     	    panelConfirmer.add(btnConfirmerDSATUR);
@@ -198,9 +211,22 @@ public class App
     	    btnConfirmerTABUCOL.addMouseListener(new MouseAdapter() {
     	    	@Override
     	    	public void mouseClicked(MouseEvent e) {
-    		   		Map<Integer, Noeud> noeuds;
-		    		noeuds = tabucol(matrix1);
-		    		drawGraph(matrix1,noeuds);
+    	     		if (comboBoxScenario.getSelectedIndex() == 0) {
+    	    			Map<Integer, Noeud> noeuds = tabucol(matrix1);
+    					drawGraph(matrix1,noeuds);
+    					System.out.println("cas1 ");
+    	    		}
+    	    		
+    	    		else if (comboBoxScenario.getSelectedIndex() == 1) {
+    	    			Map<Integer, Noeud> noeuds1 = tabucol(matrix2);
+    					drawGraph(matrix2,noeuds1);
+    					System.out.println("cas2 ");
+    	    		}
+    	    		
+    	    		else {
+    	    			 Map<Integer, Noeud> noeuds2 = tabucol(matrix3);
+	    				drawGraph(matrix3,noeuds2);System.out.println("cas3");
+    	    		}
     	    	}
     	    });
     	    panelConfirmer.add(btnConfirmerTABUCOL);
