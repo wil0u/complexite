@@ -36,9 +36,55 @@ public class App
 	static JScrollPane scrollPane = new JScrollPane();
 
     static JPanel fenetreCalcul = new JPanel();
-    static int matrix1[][] =  {{0, 1, 0,0,1,0, 1, 0,0,0}   ,   {1, 0, 1,0,0,0, 0, 1,0,0}  ,   {0, 1, 0,1,0,0, 0, 0,1,0},   {0,0, 1,0,1,0, 0, 0,0,1},   {1, 0, 0,1,0,1, 0, 0,0,0},   {0, 0, 0,0,1,0, 0, 1,1,0},   {1, 0, 0,0,0,0,0,0,1,1},   {0, 1, 0,0,0,1, 0, 0,0,1},   {0, 0, 1,0,0,1, 1, 0,0,0},   {0, 0, 0,1,0,0, 1, 1,0,0}};
-	static int matrix2[][] = { {0, 1, 1,1,1,1}   ,{1, 0, 0,0,0,0}   ,{1,0, 0,0,0,0}   ,{1, 0, 0,0,0,0}   ,{1, 0, 0,0,0,0}   ,{1, 0, 0,0,0,0}    };
+    static int matrix1[][] =  {
+    						   {0, 1, 0, 0, 1, 0, 1, 0, 0, 0},   
+					    	   {1, 0, 1, 0, 0, 0, 0, 1, 0, 0},
+					    	   {0, 1, 0, 1, 0, 0, 0, 0, 1, 0},   
+					    	   {0, 0, 1, 0, 1, 0, 0, 0, 0, 1},
+					    	   {1, 0, 0, 1, 0, 1, 0, 0, 0, 0},
+					    	   {0, 0, 0, 0, 1, 0, 0, 1, 1, 0},
+					    	   {1, 0, 0, 0, 0, 0, 0, 0, 1, 1},
+					    	   {0, 1, 0, 0, 0, 1, 0, 0, 0, 1},
+					    	   {0, 0, 1, 0, 0, 1, 1, 0, 0, 0},
+					    	   {0, 0, 0, 1, 0, 0, 1, 1, 0, 0}
+					    	   };
+    
+	static int matrix2[][] = { 
+								{0, 1, 1, 1, 1, 1},
+								{1, 0, 0, 0, 0, 0},
+								{1, 0, 0, 0, 0, 0},
+								{1, 0, 0, 0, 0, 0},
+								{1, 0, 0, 0, 0, 0},
+								{1, 0, 0, 0, 0, 0}    
+							 };
 
+    static int matrix3[][] =  {
+							   {0, 1, 1, 0, 0, 0},   
+					    	   {1, 0, 0, 1, 0, 0},
+					    	   {1, 0, 0, 0, 1, 0},   
+					    	   {0, 1, 0, 0, 0, 0},
+					    	   {0, 0, 1, 0, 0, 1},
+					    	   {0, 0, 0, 0, 1, 0}
+    						  };
+    
+    static int matrix4[][] =  {
+							   {0, 1, 1, 0, 0},   
+					    	   {1, 0, 1, 0, 0},
+					    	   {1, 1, 0, 0, 0},   
+					    	   {0, 0, 0, 0, 1},
+					    	   {0, 0, 0, 1, 0}
+    						  };
+    
+    
+    static int matrix5[][] =  {
+							   {0, 1, 1, 1, 1},   
+					    	   {1, 0, 1, 1, 1},
+					    	   {1, 1, 0, 1, 1},   
+					    	   {1, 1, 1, 0, 1},
+					    	   {1, 1, 1, 1, 0}
+							  };
+	
+	
     public static void main( String[] args )
     {
     		
@@ -95,8 +141,8 @@ public class App
     	    	@Override
     	    	public void mouseClicked(MouseEvent arg0) {
     		   		Map<Integer, Noeud> noeuds;
-		    		noeuds = backtrackingSequentialColoring(matrix1);
-		    		drawGraph(matrix1,noeuds);
+		    		noeuds = backtrackingSequentialColoring(matrix4);
+		    		drawGraph(matrix4,noeuds);
     	    	}
     	    });
     	    panelConfirmer.add(btnConfirmerBSC);
@@ -109,8 +155,8 @@ public class App
     	    	@Override
     	    	public void mouseClicked(MouseEvent arg0) {
     		   		Map<Integer, Noeud> noeuds;
-		    		noeuds = dsature(matrix1);
-		    		drawGraph(matrix1,noeuds);
+		    		noeuds = dsature(matrix5);
+		    		drawGraph(matrix5,noeuds);
     	    	}
     	    });
     	    panelConfirmer.add(btnConfirmerDSATUR);
@@ -123,8 +169,8 @@ public class App
     	    	@Override
     	    	public void mouseClicked(MouseEvent e) {
     		   		Map<Integer, Noeud> noeuds;
-		    		noeuds = tabucol(matrix1);
-		    		drawGraph(matrix1,noeuds);
+		    		noeuds = tabucol(matrix5);
+		    		drawGraph(matrix5,noeuds);
     	    	}
     	    });
     	    panelConfirmer.add(btnConfirmerTABUCOL);
