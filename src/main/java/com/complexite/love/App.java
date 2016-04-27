@@ -150,7 +150,7 @@ public class App
     	      	ArrayList<Long> valeurDsatur = new ArrayList<Long>();
     	      	ArrayList<Long> valeurTabucol = new ArrayList<Long>();
     	    		int [][]graph;
-    	    		for(int i=5;i<200;i++){
+    	    		for(int i=5;i<50;i++){
     	    			System.out.println( "\n\n----------starrrt --------- nombre de noeuds ="+ i);
     	        		graph = creerUneMatriceAleatoire(i);
     	        		long startTime ;
@@ -179,7 +179,7 @@ public class App
     	        		System.out.println( "----------end---------\n\n");
     	        	}
     	            final XYSeries series1 = new XYSeries(" BSC ");
-    	            for (int i=0;i<195;i++){
+    	            for (int i=0;i<45;i++){
     	            	System.out.println(i);
     	            	double lol = valeurBacktracking.get(i).doubleValue();
     	    			series1.add( i  ,lol);
@@ -187,13 +187,13 @@ public class App
     	            
     	           
     	            final XYSeries series2 = new XYSeries(" Dsatur ");
-    	            for (int i=0;i<195;i++){
+    	            for (int i=0;i<45;i++){
     	            	double lol = valeurDsatur.get(i).doubleValue();
     	    			series2.add( i  ,lol);
     	    		}
 
     	            final XYSeries series3 = new XYSeries(" Tabucol ");
-    	            for (int i=0;i<195;i++){
+    	            for (int i=0;i<45;i++){
     	            	double lol = valeurTabucol.get(i).doubleValue();
     	    			series3.add(i ,lol );
     	    		}
@@ -683,7 +683,6 @@ public static int randInt(int min, int max) {
      		
      			//Si il y a un arc entre i et j et que i est diffÃ©rent de j alors
      			if(matriceAdjacence[i][j]==1 && i != j){
-     				//Si le noeud j a une couleur 
      				degresDuNoeud++;
      			}
  		}
@@ -693,7 +692,6 @@ public static int randInt(int min, int max) {
 		}
  	//Ne s'arrÃªte pas tant que tous les noeuds ne sont pas coloriÃ©s
  	
- 	long startTime = System.nanoTime();
  	for (int i=0;i<noeuds.size();i++){
  	
  		
@@ -728,14 +726,7 @@ public static int randInt(int min, int max) {
  			noeuds.get(indexNoeud).setCouleurCourante(getCouleurLaPlusPetiteDisponible(couleursDesVoisins,nbCouleurMax));
  		}
  	}
- 	
- 		
- 	 	long stopTime = System.nanoTime();
- 	 	long elapsedTime = stopTime - startTime;
- 	 	System.out.println("Dsatur = "+ elapsedTime);
- 	 	int nbConflit;
- 	 	nbConflit = calculLeNombreDeConflit(noeuds,matriceAdjacence,nbCouleurMax);
-	      System.out.println("le nombre de conflit dsatur  est  : " + nbConflit);
+
  	return noeuds;
  }
 
@@ -750,19 +741,10 @@ public static int randInt(int min, int max) {
 			noeuds.put(i, noeud);
 		}
     	
-    		long startTime = System.nanoTime();
-    		algoRecursifBacktracking(noeuds,matriceAdjacence,nbCouleurMax);
-    
-    	
-    		
-    	      long stopTime = System.nanoTime();
-    	      long elapsedTime = stopTime - startTime;
-    	      System.out.println("backtracking = " + elapsedTime);
-    	      int nbConflit;
-    	      nbConflit = calculLeNombreDeConflit(noeuds,matriceAdjacence,nbCouleurMax);
-    	      System.out.println("le nombre de conflit backtracking- est : " + nbConflit);
+    	algoRecursifBacktracking(noeuds,matriceAdjacence,nbCouleurMax);
     	return noeuds;
     }
+    
 
     public static void   algoRecursifBacktracking(Map<Integer, Noeud> noeuds,int matriceAdjacence[][],int nbCouleurMax){
     	int noeudCourant;
