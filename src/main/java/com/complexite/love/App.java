@@ -6,6 +6,15 @@ import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.CategoryDataset;
+import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
@@ -137,7 +146,75 @@ public class App
     	    
     		// Affichage de la fenêtre
     		fenetre.setVisible(true);
-    		
+    		  ArrayList<Long> valeurBacktracking = new ArrayList<Long>();
+    	      	ArrayList<Long> valeurDsatur = new ArrayList<Long>();
+    	      	ArrayList<Long> valeurTabucol = new ArrayList<Long>();
+    	    		int [][]graph;
+    	    		for(int i=5;i<200;i++){
+    	    			System.out.println( "\n\n----------starrrt --------- nombre de noeuds ="+ i);
+    	        		graph = creerUneMatriceAleatoire(i);
+    	        		long startTime ;
+    	        	 	long stopTime ;
+    	        	 	long elapsedTime ;
+    	        	 	
+    	        	 	startTime = System.nanoTime();
+    	        		backtrackingSequentialColoring(graph);
+    	        		stopTime = System.nanoTime();
+    	        		elapsedTime = stopTime - startTime;
+    	        		valeurBacktracking.add(elapsedTime);
+    	        		
+    	        		
+    	        	 	startTime = System.nanoTime();
+    	        		dsature(graph);
+    	        		stopTime = System.nanoTime();
+    	        		elapsedTime = stopTime - startTime;
+    	        		valeurDsatur.add(elapsedTime);
+    	        		
+    	        		
+    	        	 	startTime = System.nanoTime();
+    	        		tabucol(graph);
+    	        		stopTime = System.nanoTime();
+    	        		elapsedTime = stopTime - startTime;
+    	        		valeurTabucol.add(elapsedTime);
+    	        		System.out.println( "----------end---------\n\n");
+    	        	}
+    	            final XYSeries series1 = new XYSeries(" BSC ");
+    	            for (int i=0;i<195;i++){
+    	            	System.out.println(i);
+    	            	double lol = valeurBacktracking.get(i).doubleValue();
+    	    			series1.add( i  ,lol);
+    	    		}
+    	            
+    	           
+    	            final XYSeries series2 = new XYSeries(" Dsatur ");
+    	            for (int i=0;i<195;i++){
+    	            	double lol = valeurDsatur.get(i).doubleValue();
+    	    			series2.add( i  ,lol);
+    	    		}
+
+    	            final XYSeries series3 = new XYSeries(" Tabucol ");
+    	            for (int i=0;i<195;i++){
+    	            	double lol = valeurTabucol.get(i).doubleValue();
+    	    			series3.add(i ,lol );
+    	    		}
+
+    	            final XYSeriesCollection dataset = new XYSeriesCollection();
+    	            dataset.addSeries(series1);
+    	            dataset.addSeries(series2);
+    	            dataset.addSeries(series3);
+    	    		
+    	    		
+    	    		JFreeChart lineChart2 = ChartFactory.createXYLineChart(
+    	         	         "Salut",
+    	         	         "Years","Number of Schools",
+    	         	         dataset,
+    	         	         PlotOrientation.VERTICAL,
+    	         	         true,true,false);
+    	         	         
+    	         	      ChartPanel chartPanel2 = new ChartPanel( lineChart2 );
+    	         	      chartPanel2.setPreferredSize( new java.awt.Dimension( 560 , 367 ) );
+    	         	      fenetreGraphe.add(chartPanel2);
+
    /*	
     		//Tamere
     		//Graphe  de Petersen
@@ -245,6 +322,55 @@ public class App
     	
     	return nombreChromatique;
     }
+    
+    public static int[][] creerUneMatriceAleatoire(int nbNoeuds){
+		int [][] coucou1 = new int[nbNoeuds][nbNoeuds] ; 
+		int lol;
+		for (int i=0;i<nbNoeuds;i++){
+			for(int j=0;j<nbNoeuds;j++){
+				lol = randInt(0,40);
+				if(lol>19 )
+					coucou1[i][j]=1;
+				else
+					coucou1[i][j]=0;
+			}
+		}
+		for (int i=0;i<nbNoeuds;i++){
+			for(int j=0;j<nbNoeuds;j++){
+				if(coucou1[i][j]==1 )
+					if(coucou1[j][i]==0){
+						coucou1[j][i]=1;
+					}
+			}
+		}
+		for (int i=0;i<nbNoeuds;i++){
+			for(int j=0;j<nbNoeuds;j++){
+				if(coucou1[i][j]==0 )
+					if(coucou1[j][i]==1){
+						coucou1[j][i]=0;
+					}
+			}
+		}
+		return coucou1;
+    }
+
+public static int randInt(int min, int max) {
+
+    // NOTE: This will (intentionally) not run as written so that folks
+    // copy-pasting have to think about how to initialize their
+    // Random instance.  Initialization of the Random instance is outside
+    // the main scope of the question, but some decent options are to have
+    // a field that is initialized once and then re-used as needed or to
+    // use ThreadLocalRandom (if using at least Java 1.7).
+    Random rand = new Random();
+
+    // nextInt is normally exclusive of the top value,
+    // so add 1 to make it inclusive
+    int randomNum = rand.nextInt((max - min) + 1) + min;
+
+    return randomNum;
+}
+
     
     public static void drawGraph(int matriceAdjacence[][],Map<Integer, Noeud> noeuds){
     	fenetreCalcul.remove(scrollPane);
@@ -383,31 +509,32 @@ public class App
     public static int calculLeDegresDeSaturationMaxDuGraphEtDeChaqueNoeud(Map<Integer, Noeud> noeuds,int matriceAdjacence[][]){
     	int degresDeSaturationMax=0;
     	int degresDeSaturationDuNoeud;
-    	int degresDuNoeud;
+    	
     	for(int i=0;i<noeuds.size();i++){
     		degresDeSaturationDuNoeud=0;
-    		degresDuNoeud=0;
-    		for (int j=0;j<noeuds.size();j++){
-    			//Si il y a un arc entre i et j et que i est différent de j alors
-    			if(matriceAdjacence[i][j]==1 && i != j){
-    				//Si le noeud j a une couleur 
-    				degresDuNoeud++;
-    				if(noeuds.get(j).getCouleurCourante()!= 0  ){
-    					
-    					degresDeSaturationDuNoeud++;
-    				}
-    			}
-    		}
-    		noeuds.get(i).setDegres(degresDuNoeud);
-    		noeuds.get(i).setDegresDeSaturation(degresDeSaturationDuNoeud);
-    		//Si le degres du noeud i est supérieur au degres max
-    		if (degresDeSaturationDuNoeud>degresDeSaturationMax && noeuds.get(i).getCouleurCourante()==0){
-    			degresDeSaturationMax=degresDeSaturationDuNoeud;
+    		if(noeuds.get(i).getCouleurCourante()==0){
+	    		for (int j=0;j<noeuds.size();j++){
+	    			//Si il y a un arc entre i et j et que i est diffÃ©rent de j alors
+	    			if(matriceAdjacence[i][j]==1 && i != j){
+	    				//Si le noeud j a une couleur 
+	    			
+	    				if(noeuds.get(j).getCouleurCourante()!= 0  ){
+	    					
+	    					degresDeSaturationDuNoeud++;
+	    				}
+	    			}
+	    		}
+	    		noeuds.get(i).setDegresDeSaturation(degresDeSaturationDuNoeud);
+	    		//Si le degres du noeud i est supÃ©rieur au degres max
+	    		if (degresDeSaturationDuNoeud>degresDeSaturationMax ){
+	    			degresDeSaturationMax=degresDeSaturationDuNoeud;
+	    		}
     		}
     	}
     	
     	return degresDeSaturationMax;
     }
+
     //Retourne le premier noeuds(index) rencontrer avec le degres donnée en paramètre
     public static int getIndexNoeudByDegres(ArrayList<Noeud> noeudsParDegresDeSaturation, int degres){
     	for(int i=0;i<noeudsParDegresDeSaturation.size();i++){
@@ -471,30 +598,25 @@ public class App
     
     }
     
-    public static ArrayList<Conflit> calculLeNombreDeConflit(Map<Integer, Noeud> noeuds,int matriceAdjacence[][],int nbCouleurMax){
-    	
-    	ArrayList<Conflit> conflits = new ArrayList<Conflit>();
+    public static int calculLeNombreDeConflit(Map<Integer, Noeud> noeuds,int matriceAdjacence[][],int nbCouleurMax){
+    	int nbConflits=0;
+   
     	ArrayList<Integer> couleursDesVoisins = new ArrayList<Integer>();
     	for(int i=0;i<noeuds.size();i++){
     		for (int j=0;j<noeuds.size();j++){
-    			couleursDesVoisins = getCouleursDesVoisins(noeuds,matriceAdjacence,i);
+    			
     			if(matriceAdjacence[i][j]==1 && i != j){
     				if(noeuds.get(j).getCouleurCourante()==noeuds.get(i).getCouleurCourante()  ){
-    					Conflit conflit = new Conflit();
-    					conflit.setNumeroNoeud1(j);
-    					conflit.setNumeroNoeud2(i);
-    					if(couleursDesVoisins.size()==nbCouleurMax){
-    						conflit.setConflitDifficile(true);
-    					}
-    					if(!conflits.contains(new Conflit(i,j)) && !conflits.contains(new Conflit(j,i))){
-    						conflits.add(conflit);
-    					}
+    					nbConflits++;
+    			
+    					
     				}
     			}
     		}
     	}
-    	return conflits;
+    	return nbConflits;
     }
+
  public static int getPremierVoisinsColoriable(int matriceAdjacence[][],Noeud noeud,int couleur,Map<Integer, Noeud> noeuds){
     	int nbNoeud = matriceAdjacence[0].length;
     	ArrayList<Conflit> conflits = new ArrayList<Conflit>();
@@ -522,63 +644,101 @@ public class App
  	}
 	 return nombreConflit;
  }
- 
+ public static boolean isConflit(int matriceAdjacence[][],Map<Integer, Noeud> noeuds,int indexNoeud){
+	int nbNoeud = matriceAdjacence[0].length;
+ 	for (int j=0;j<nbNoeud;j++){
+    	
+		if(matriceAdjacence[indexNoeud][j]==1&&indexNoeud !=j){
+			
+			if(noeuds.get(j).getCouleurCourante()==noeuds.get(indexNoeud).getCouleurCourante() ){
+		
+				return false;
+				
+			}
+			
+			
+		}
+	}
+ 	return true;
+ }
+
  // ----------------------------------------------------------------------------------LES ALGOS ----------------------------------------------------------------------------------   
     
-    public static Map<Integer, Noeud> dsature(int matriceAdjacence[][]){
-    	//Initialisation
-    	int degresDeSaturationMaxCourant=0;
-    	int degresLePlusEleve=0;
-    	ArrayList<Noeud> noeudsParDegresDeSaturation = new ArrayList<Noeud>();
-    	ArrayList<Integer> couleursDesVoisins = new ArrayList<Integer>();
-    	Map<Integer, Noeud> noeuds = new HashMap<Integer, Noeud>();
-    	int taille = matriceAdjacence[0].length;
-    	int nbCouleurMax = calculNombreChromatique(matriceAdjacence);
-    	
-    	for (int i=0;i<taille;i++){
-    		Noeud noeud = new Noeud();
+ public static Map<Integer, Noeud> dsature(int matriceAdjacence[][]){
+ 	//Initialisation
+ 	int degresDeSaturationMaxCourant=0;
+ 	int degresLePlusEleve=0;
+ 	ArrayList<Noeud> noeudsParDegresDeSaturation = new ArrayList<Noeud>();
+ 	ArrayList<Integer> couleursDesVoisins = new ArrayList<Integer>();
+ 	Map<Integer, Noeud> noeuds = new HashMap<Integer, Noeud>();
+ 	int taille = matriceAdjacence[0].length;
+ 	int nbCouleurMax = calculNombreChromatique(matriceAdjacence);
+ 	int degresDuNoeud;
+ 	for (int i=0;i<taille;i++){
+ 		Noeud noeud = new Noeud();
+ 		degresDuNoeud=0;
+ 		for(int j=0;j<taille;j++){
+     		
+     		
+     		
+     			//Si il y a un arc entre i et j et que i est diffÃ©rent de j alors
+     			if(matriceAdjacence[i][j]==1 && i != j){
+     				//Si le noeud j a une couleur 
+     				degresDuNoeud++;
+     			}
+ 		}
+ 		noeud.setDegres(degresDuNoeud);
 			noeud.setNumeroNoeud(i);
 			noeuds.put(i, noeud);
 		}
-    	//Ne s'arrête pas tant que tous les noeuds ne sont pas coloriés
-    	while (false == areAllColored(noeuds)){
-    		
-    		//On calcul le degres de saturation max courant pour les noeuds non colorié
-    		degresDeSaturationMaxCourant=calculLeDegresDeSaturationMaxDuGraphEtDeChaqueNoeud(noeuds,matriceAdjacence);
-    		
-    		//Ensuite on récupère ces noeuds encore non coloriés qui possède ce degres de saturation
-    		noeudsParDegresDeSaturation=getNoeudsByDegresDeSaturation(noeuds,degresDeSaturationMaxCourant);
-    		
-    		//Si il y a des égalités (En gros si on récupère plus d'un noeud) : 
-    		if(noeudsParDegresDeSaturation.size()>1){
-    			//On priorise par degres le plus eleve
-    			//Donc on calcul le degres le plus eleve des noeuds présent dans la liste choisies 
-    			degresLePlusEleve=calculDegresLePlusEleve(noeudsParDegresDeSaturation);
-    			//Puis on choisi le premier noeud avec ce degres dans la liste
-    			int indexNoeud=getIndexNoeudByDegres(noeudsParDegresDeSaturation,degresLePlusEleve); 
-    			
-    			//On récupère la couleur de ces voisins
-    			couleursDesVoisins = getCouleursDesVoisins(noeuds,matriceAdjacence,indexNoeud); 
-    			
-    			//Puis on colorie avec la couleurs la plus petite disponible ( cette couleur est trouvé par la fonction "getCouleurLaPlusPetiteDisponible")
-    			noeuds.get(indexNoeud).setCouleurCourante(getCouleurLaPlusPetiteDisponible(couleursDesVoisins,nbCouleurMax));
-    		
-    			
-    		}
-    		//Sinon si il n'y a qu'un seul noeud
-    		else if(noeudsParDegresDeSaturation.size()==1){
-    			//Pas besoin de priorisé, on calcul directement la couleur la plus petite disponible du noeuds et on le colorie avec cette dernière.
-    			int indexNoeud=noeudsParDegresDeSaturation.get(0).getNumeroNoeud();
-    			couleursDesVoisins = getCouleursDesVoisins(noeuds,matriceAdjacence,indexNoeud); 
-    			noeuds.get(indexNoeud).setCouleurCourante(getCouleurLaPlusPetiteDisponible(couleursDesVoisins,indexNoeud));
-    		}
-    	}
-    	
-    	
-    	
-    	return noeuds;
-    }
-    
+ 	//Ne s'arrÃªte pas tant que tous les noeuds ne sont pas coloriÃ©s
+ 	
+ 	long startTime = System.nanoTime();
+ 	for (int i=0;i<noeuds.size();i++){
+ 	
+ 		
+ 		//On calcul le degres de saturation max courant pour les noeuds non coloriÃ©
+ 		degresDeSaturationMaxCourant=calculLeDegresDeSaturationMaxDuGraphEtDeChaqueNoeud(noeuds,matriceAdjacence);
+ 		
+ 		//Ensuite on rÃ©cupÃ¨re ces noeuds encore non coloriÃ©s qui possÃ¨de ce degres de saturation
+ 		noeudsParDegresDeSaturation=getNoeudsByDegresDeSaturation(noeuds,degresDeSaturationMaxCourant);
+ 		
+ 		//Si il y a des Ã©galitÃ©s (En gros si on rÃ©cupÃ¨re plus d'un noeud) : 
+ 		if(noeudsParDegresDeSaturation.size()>1){
+ 			//On priorise par degres le plus eleve
+ 			//Donc on calcul le degres le plus eleve des noeuds prÃ©sent dans la liste choisies 
+ 			degresLePlusEleve=calculDegresLePlusEleve(noeudsParDegresDeSaturation);
+ 			//Puis on choisi le premier noeud avec ce degres dans la liste
+ 			int indexNoeud=getIndexNoeudByDegres(noeudsParDegresDeSaturation,degresLePlusEleve); 
+ 			
+ 			//On rÃ©cupÃ¨re la couleur de ces voisins
+ 			couleursDesVoisins = getCouleursDesVoisins(noeuds,matriceAdjacence,indexNoeud); 
+ 			
+ 			//Puis on colorie avec la couleurs la plus petite disponible ( cette couleur est trouvÃ© par la fonction "getCouleurLaPlusPetiteDisponible")
+ 	
+ 			noeuds.get(indexNoeud).setCouleurCourante(getCouleurLaPlusPetiteDisponible(couleursDesVoisins,nbCouleurMax));
+
+ 			
+ 		}
+ 		//Sinon si il n'y a qu'un seul noeud
+ 		else if(noeudsParDegresDeSaturation.size()==1){
+ 			//Pas besoin de priorisÃ©, on calcul directement la couleur la plus petite disponible du noeuds et on le colorie avec cette derniÃ¨re.
+ 			int indexNoeud=noeudsParDegresDeSaturation.get(0).getNumeroNoeud();
+ 			couleursDesVoisins = getCouleursDesVoisins(noeuds,matriceAdjacence,indexNoeud); 
+ 			noeuds.get(indexNoeud).setCouleurCourante(getCouleurLaPlusPetiteDisponible(couleursDesVoisins,nbCouleurMax));
+ 		}
+ 	}
+ 	
+ 		
+ 	 	long stopTime = System.nanoTime();
+ 	 	long elapsedTime = stopTime - startTime;
+ 	 	System.out.println("Dsatur = "+ elapsedTime);
+ 	 	int nbConflit;
+ 	 	nbConflit = calculLeNombreDeConflit(noeuds,matriceAdjacence,nbCouleurMax);
+	      System.out.println("le nombre de conflit dsatur  est  : " + nbConflit);
+ 	return noeuds;
+ }
+
     public static Map<Integer, Noeud> backtrackingSequentialColoring(int matriceAdjacence[][]){
     	//Initialisation
     	Map<Integer, Noeud> noeuds = new HashMap<Integer, Noeud>();
@@ -590,60 +750,69 @@ public class App
 			noeuds.put(i, noeud);
 		}
     	
-    
+    		long startTime = System.nanoTime();
     		algoRecursifBacktracking(noeuds,matriceAdjacence,nbCouleurMax);
     
     	
-    	
-    	
+    		
+    	      long stopTime = System.nanoTime();
+    	      long elapsedTime = stopTime - startTime;
+    	      System.out.println("backtracking = " + elapsedTime);
+    	      int nbConflit;
+    	      nbConflit = calculLeNombreDeConflit(noeuds,matriceAdjacence,nbCouleurMax);
+    	      System.out.println("le nombre de conflit backtracking- est : " + nbConflit);
     	return noeuds;
     }
 
     public static void   algoRecursifBacktracking(Map<Integer, Noeud> noeuds,int matriceAdjacence[][],int nbCouleurMax){
-    	int noeudCourant=0;
+    	int noeudCourant;
     	int nbNoeud = matriceAdjacence[0].length;
-  
-    	//Le noeud courant est le 1er noeud rencontré qui possède la couleur neutre : 0.
+    	boolean conditionRespectee;
+    	//Le noeud courant est le 1er noeud rencontrÃ© qui possÃ¨de la couleur neutre : 0.
     	noeudCourant=getIndexPremierNoeudNonColorier(noeuds);
 
     	
-    	//On regarde si la "liste des couleurs deja utilisée" du noeud courant est au max
-    	//Si c'est le cas cela veut dire que toutes les couleurs ont deja étaient tenté sur ce noeuds sans succès
-    	//Il faut donc décolorer le noeuds d'avant et rappeler la fonction.
+    	//On regarde si la "liste des couleurs deja utilisÃ©e" du noeud courant est au max
+    	//Si c'est le cas cela veut dire que toutes les couleurs ont deja Ã©taient tentÃ© sur ce noeuds sans succÃ¨s
+    	//Il faut donc dÃ©colorer le noeuds d'avant et rappeler la fonction.
     	if(noeuds.get(noeudCourant).getListeCouleurDejaUtilisee().size()==nbCouleurMax){
     		noeuds.get(noeudCourant-1).setCouleurCourante(0);
     		noeuds.get(noeudCourant).getListeCouleurDejaUtilisee().clear();
     		algoRecursifBacktracking(noeuds,matriceAdjacence,nbCouleurMax);
     	}
     	
-    	//Coloration du noeud courant avec une couleur qu'il n'a jamais rencontré
+    	//Coloration du noeud courant avec une couleur qu'il n'a jamais rencontrÃ©
     	noeuds.get(noeudCourant).setCouleurCourante(getIndexPremiereCouleurNonDejaUtilise(noeuds,noeudCourant,nbCouleurMax));
     	
-    	//tester si la condition de coloration est vérifiée
-    	boolean conditionRespectee=true;
-    	for (int j=0;j<nbNoeud;j++){
+    	//tester si la condition de coloration est vÃ©rifiÃ©e
+    	conditionRespectee=isConflit(matriceAdjacence,noeuds,noeudCourant);
+    	//for (int j=0;j<nbNoeud;j++){
+    	
+    		//if(matriceAdjacence[noeudCourant][j]==1&&noeudCourant !=j){
+    			
+    			//if(noeuds.get(j).getCouleurCourante()==noeuds.get(noeudCourant).getCouleurCourante() ){
     		
-    		if(matriceAdjacence[noeudCourant][j]==1&&noeudCourant !=j){
-    			if(noeuds.get(j).getCouleurCourante()==noeuds.get(noeudCourant).getCouleurCourante() ){
-    		
-    				conditionRespectee=false;
-    			}
-    		}
-    	}
+    				//conditionRespectee=false;
+    				
+    			//}
+    			
+    			
+    		//}
+    	//}
     	
     	if(conditionRespectee==false){
-    		//On décolore le noeud
+    		//On dÃ©colore le noeud
     		noeuds.get(noeudCourant).setCouleurCourante(0);
-    		//Et on le redonne à manger à l'algorithme récursif.
+    		//Et on le redonne Ã  manger Ã  l'algorithme rÃ©cursif.
     		algoRecursifBacktracking(noeuds,matriceAdjacence,nbCouleurMax);
     	}
     	else{
-    		//Si c'est vrai on regarde si tous les noeuds sont coloriés
-    		//Si c'est le cas, alors on sort de la boucle récursive
+    		//Si c'est vrai on regarde si tous les noeuds sont coloriÃ©s
+    		//Si c'est le cas, alors on sort de la boucle rÃ©cursive
     		if(areAllColored(noeuds)==true){
     			return;
     		}
-    		//Sinon on rappelle la fonction récursive.
+    		//Sinon on rappelle la fonction rÃ©cursive.
     		algoRecursifBacktracking(noeuds,matriceAdjacence,nbCouleurMax);
     	}
     	
@@ -651,17 +820,14 @@ public class App
 		
     }
 
+
     public static Map<Integer, Noeud> tabucol(int matriceAdjacence[][]){
     	//Initialisation
     	Map<Integer, Noeud> noeuds = new HashMap<Integer, Noeud>();
     	int taille = matriceAdjacence[0].length;
     	int nbCouleurMax = calculNombreChromatique(matriceAdjacence);
     	int nbConflitCourant=0;
-    	int degresDuNoeud;
-    	ArrayList<Conflit> conflitsCourants = new ArrayList<Conflit>();
-    	ArrayList<Conflit> conflitsTampon = new ArrayList<Conflit>();
-    	//Colorier les noeuds du graphe de manière arbitraire
-    	Random random = new Random();
+    	//Colorier les noeuds du graphe de maniÃ¨re arbitraire
     	int couleurAleatoire = 1;
     	for (int i=0;i<taille;i++){
     		Noeud noeud = new Noeud();
@@ -669,66 +835,49 @@ public class App
     		noeud.setCouleurCourante(couleurAleatoire);
 			noeuds.put(i, noeud);
 		}
-    	for(int i=0;i<noeuds.size();i++){
+    	
+    	//System.out.println("Nombre de conflit : "+ calculLeNombreDeConflit(noeuds,matriceAdjacence,nbCouleurMax));
+    	long startTime = System.nanoTime();
+    	nbConflitCourant = calculLeNombreDeConflit(noeuds,matriceAdjacence,nbCouleurMax);
+    	int nbCompteurTaboue=0;
+    	while(nbConflitCourant>0){
     		
-    		degresDuNoeud=0;
-    		for (int j=0;j<noeuds.size();j++){
-    			//Si il y a un arc entre i et j et que i est différent de j alors
-    			if(matriceAdjacence[i][j]==1 && i != j){
-    				degresDuNoeud++;
-    			
-    			}
-    		}
-    		noeuds.get(i).setDegres(degresDuNoeud);
-    	}
-    	for(int i=0;i<noeuds.size();i++){
-    		System.out.println("Couleur aléatoire Du noeud"+i+" est :"+noeuds.get(i).getCouleurCourante());
-    	}
-    	//On recupère la liste des conflits ! 
-    	conflitsCourants = calculLeNombreDeConflit(noeuds,matriceAdjacence,nbCouleurMax);
-    	System.out.println("Nombre de conflit : "+ conflitsCourants.size()); 
-    	nbConflitCourant = conflitsCourants.size();
-    	while(nbConflitCourant!=0){
+    	if(nbCompteurTaboue==9){
     		for(int i=0;i<noeuds.size();i++){
-        		noeuds.get(i).incrementAllCompteur();
+        		noeuds.get(i).getListeCouleurTaboue().clear();
         	}
+    	}
+    	nbCompteurTaboue++;
+  
     	
-    	int degresNoeud1;
-    	int degresNoeud2;
-    	
-    	ArrayList<Integer> couleurVoisinNoeud1 = new ArrayList<Integer>();
-    	ArrayList<Integer> couleurVoisinNoeud2 = new ArrayList<Integer>();
-    	boolean contientConflitsDifficile=false;
-    	int indiceConflitDifficile=0;
+    	int couleurTampon;
     	int nbConflitCourant1;
-    	LeMeilleurChoixPossible lmcp;
-    	//TODO : en modifiant la couleurs d'un noeud je modifie directement tous les autres conflits donc ma liste n'est forcément plus correcte
-    	//TODO : il faut différencier les conflits qui génèrent des conflits à ce qui ne le font pas 
-    	//TODO : l'idée serait de continuer la boucle for tant que le conflit est facile et qu'il n'engendre pas d'autre conflit
-    	//TODO : si le ocnflit est difficile alors on break en dehors de la boucle et on le résoudd .
-    	//TODO : mais qu'est ce qu'un conflit facile ? la suite in the next episode of coding for the noobs 
+    	LeMeilleurChoixPossible lmcp= new LeMeilleurChoixPossible();
     	for (int i=0;i<noeuds.size();i++){
-    		lmcp= new LeMeilleurChoixPossible();
-    		lmcp.setCouleur(noeuds.get(i).getCouleurCourante());
-    		lmcp.setNbConflit(nombreDeConflitAssocieAuNoeud(noeuds.get(i),matriceAdjacence,noeuds));
-    		for(int j=1;j<=nbCouleurMax;j++){
-    				if(!noeuds.get(i).getListeCouleurTaboue().contains(j)){
-    					noeuds.get(i).setCouleurCourante(j);
-    					nbConflitCourant1 = nombreDeConflitAssocieAuNoeud(noeuds.get(i),matriceAdjacence,noeuds);
-    					if(nbConflitCourant1<lmcp.getNbConflit()){
-    						lmcp.setNbConflit(nbConflitCourant1);
-    						lmcp.setCouleur(j);
-    						
-    					}
-    				}
-    				
-        		}
-    		
-    		noeuds.get(i).setCouleurCourante(lmcp.getCouleur());
-    		noeuds.get(i).addCouleurTaboue(lmcp.getCouleur());
-    	
+    		nbConflitCourant1 = nombreDeConflitAssocieAuNoeud(noeuds.get(i),matriceAdjacence,noeuds);
+    		if(nbConflitCourant1>0){
+	    		lmcp.setCouleur(noeuds.get(i).getCouleurCourante());
+	    		lmcp.setNbConflit(nbConflitCourant1);
+	    		
+	    		for(int j=1;j<=nbCouleurMax;j++){
+	    				couleurTampon = noeuds.get(i).getCouleurCourante();
+	    				if(!noeuds.get(i).getListeCouleurTaboue().contains(j)){
+	    					noeuds.get(i).setCouleurCourante(j);
+	    					nbConflitCourant1 = nombreDeConflitAssocieAuNoeud(noeuds.get(i),matriceAdjacence,noeuds);
+	    					if(nbConflitCourant1<lmcp.getNbConflit()){
+	    						lmcp.setNbConflit(nbConflitCourant1);
+	    						lmcp.setCouleur(j);
+	    						lmcp.setCouleurTampon(couleurTampon);
+	    					}
+	    				}
+	    				
+	        		}
+	    		
+	    		noeuds.get(i).setCouleurCourante(lmcp.getCouleur());
+	    		noeuds.get(i).getListeCouleurTaboue().add(lmcp.getCouleurTampon());
+    		}
         	}
-    	nbConflitCourant=calculLeNombreDeConflit(noeuds,matriceAdjacence,nbCouleurMax).size();
+    	nbConflitCourant=calculLeNombreDeConflit(noeuds,matriceAdjacence,nbCouleurMax);
     	}
     	
     	
@@ -737,10 +886,13 @@ public class App
     	
     	
     
-    	//System.out.println("Le meilleur choix possible est de colorier le noeud :"+mcp.getNumeroNoeud()+" avec la couleur"+mcp.getCouleur()+", cela genère "+mcp.getNbConflit()+" conflits");
-    	
+    	//System.out.println("Le meilleur choix possible est de colorier le noeud :"+mcp.getNumeroNoeud()+" avec la couleur"+mcp.getCouleur()+", cela genÃ¨re "+mcp.getNbConflit()+" conflits");
+          long stopTime = System.nanoTime();
+	      long elapsedTime = stopTime - startTime;
+	      System.out.println("tabucol = "+elapsedTime);
     	return noeuds;
     }
+
 
 
     
