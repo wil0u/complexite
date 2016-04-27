@@ -29,6 +29,8 @@ import java.util.Random;
 import javax.swing.JScrollPane;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.JList;
+import javax.swing.JComboBox;
 
 
 public class App 
@@ -67,23 +69,7 @@ public class App
 					    	   {0, 0, 0, 0, 1, 0}
     						  };
     
-    static int matrix4[][] =  {
-							   {0, 1, 1, 0, 0},   
-					    	   {1, 0, 1, 0, 0},
-					    	   {1, 1, 0, 0, 0},   
-					    	   {0, 0, 0, 0, 1},
-					    	   {0, 0, 0, 1, 0}
-    						  };
-    
-    
-    static int matrix5[][] =  {
-							   {0, 1, 1, 1, 1},   
-					    	   {1, 0, 1, 1, 1},
-					    	   {1, 1, 0, 1, 1},   
-					    	   {1, 1, 1, 0, 1},
-					    	   {1, 1, 1, 1, 0}
-							  };
-	
+
 	
     public static void main( String[] args )
     {
@@ -133,6 +119,20 @@ public class App
     	    JPanel panelConfirmer = new JPanel();
     	    fenetreCalcul.add(panelConfirmer, BorderLayout.SOUTH);
     	    
+    	    JLabel lblScenario = new JLabel("Scénario");
+    	    panelConfirmer.add(lblScenario);
+    	    
+    	    final JComboBox comboBoxScenario = new JComboBox();
+    	    comboBoxScenario.addItem(01);
+    	    comboBoxScenario.addItem(02);
+    	    comboBoxScenario.addItem(03);
+    	    
+    	    
+    	    panelConfirmer.add(comboBoxScenario);
+    	    
+    	    JLabel lblEspaceVideScenario = new JLabel("               ");
+    	    panelConfirmer.add(lblEspaceVideScenario);
+    	    
     	    JLabel lblConfirmerLancement = new JLabel("Lancement               ");
     	    panelConfirmer.add(lblConfirmerLancement);
     	    
@@ -140,9 +140,39 @@ public class App
     	    btnConfirmerBSC.addMouseListener(new MouseAdapter() {
     	    	@Override
     	    	public void mouseClicked(MouseEvent arg0) {
-    		   		Map<Integer, Noeud> noeuds;
-		    		noeuds = backtrackingSequentialColoring(matrix4);
-		    		drawGraph(matrix4,noeuds);
+    	    		System.out.println("get selected index "+comboBoxScenario.getSelectedIndex());
+    	    		
+    	    		if (comboBoxScenario.getSelectedIndex() == 0) {
+    	    			Map<Integer, Noeud> noeuds = backtrackingSequentialColoring(matrix1);
+    					drawGraph(matrix1,noeuds);
+    					System.out.println("cas1 ");
+    	    		}
+    	    		
+    	    		else if (comboBoxScenario.getSelectedIndex() == 1) {
+    	    			Map<Integer, Noeud> noeuds1 = backtrackingSequentialColoring(matrix2);
+    					drawGraph(matrix2,noeuds1);
+    					System.out.println("cas2 ");
+    	    		}
+    	    		
+    	    		else {
+    	    			 Map<Integer, Noeud> noeuds2 = backtrackingSequentialColoring(matrix3);
+	    				drawGraph(matrix3,noeuds2);System.out.println("cas3");
+    	    		}
+    	    		/*
+    	    		switch(comboBoxScenario.getSelectedIndex()){
+    	    		case 0 : Map<Integer, Noeud> noeuds = backtrackingSequentialColoring(matrix1);
+    	    					drawGraph(matrix1,noeuds);
+    	    					System.out.println("cas1 ");
+    	    		case 1 : Map<Integer, Noeud> noeuds1 = backtrackingSequentialColoring(matrix2);
+    	    					drawGraph(matrix2,noeuds1);
+    	    					System.out.println("cas2 ");
+    	    		case 2 : Map<Integer, Noeud> noeuds2 = backtrackingSequentialColoring(matrix3);
+    	    					drawGraph(matrix3,noeuds2);System.out.println("cas3");
+    	    		}
+    	    		*/
+    		   		
+		    		
+		    		
     	    	}
     	    });
     	    panelConfirmer.add(btnConfirmerBSC);
@@ -155,8 +185,8 @@ public class App
     	    	@Override
     	    	public void mouseClicked(MouseEvent arg0) {
     		   		Map<Integer, Noeud> noeuds;
-		    		noeuds = dsature(matrix5);
-		    		drawGraph(matrix5,noeuds);
+		    		noeuds = dsature(matrix1);
+		    		drawGraph(matrix1,noeuds);
     	    	}
     	    });
     	    panelConfirmer.add(btnConfirmerDSATUR);
@@ -169,8 +199,8 @@ public class App
     	    	@Override
     	    	public void mouseClicked(MouseEvent e) {
     		   		Map<Integer, Noeud> noeuds;
-		    		noeuds = tabucol(matrix5);
-		    		drawGraph(matrix5,noeuds);
+		    		noeuds = tabucol(matrix1);
+		    		drawGraph(matrix1,noeuds);
     	    	}
     	    });
     	    panelConfirmer.add(btnConfirmerTABUCOL);
@@ -803,10 +833,11 @@ public static int randInt(int min, int max) {
     	//On regarde si la "liste des couleurs deja utilisÃ©e" du noeud courant est au max
     	//Si c'est le cas cela veut dire que toutes les couleurs ont deja Ã©taient tentÃ© sur ce noeuds sans succÃ¨s
     	//Il faut donc dÃ©colorer le noeuds d'avant et rappeler la fonction.
-    	if(noeuds.get(noeudCourant).getListeCouleurDejaUtilisee().size()==nbCouleurMax){
+    	if(noeudCourant > 0 && noeuds.get(noeudCourant).getListeCouleurDejaUtilisee().size()==nbCouleurMax){
     		noeuds.get(noeudCourant-1).setCouleurCourante(0);
     		noeuds.get(noeudCourant).getListeCouleurDejaUtilisee().clear();
     		algoRecursifBacktracking(noeuds,matriceAdjacence,nbCouleurMax);
+    		System.out.println(noeudCourant-1 + " C'est un noeud courant eheh");
     	}
     	
     	//Coloration du noeud courant avec une couleur qu'il n'a jamais rencontrÃ©
