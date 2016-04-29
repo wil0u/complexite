@@ -168,7 +168,7 @@ public class App
     	    					System.out.println("cas2 ");
     	    		case 2 : Map<Integer, Noeud> noeuds2 = backtrackingSequentialColoring(matrix3);
     	    					drawGraph(matrix3,noeuds2);System.out.println("cas3");
-    	    		}
+    	    		}- 
     	    		*/
     		   		
 		    		
@@ -252,14 +252,16 @@ public class App
     	      	ArrayList<Long> valeurDsatur = new ArrayList<Long>();
     	      	ArrayList<Long> valeurTabucol = new ArrayList<Long>();
     	    		int [][]graph;
-    	    		for(int i=5;i<50;i++){
+    	    		for(int i=3;i<9;i++){
     	    			System.out.println( "\n\n----------starrrt --------- nombre de noeuds ="+ i);
     	        		graph = creerUneMatriceAleatoire(i);
     	        		long startTime ;
     	        	 	long stopTime ;
     	        	 	long elapsedTime ;
+    	        	 	BackTrackingSequential bsc = new BackTrackingSequential();
     	        	 	
     	        	 	startTime = System.nanoTime();
+    	        	 	//bsc.calculer(graph);
     	        		backtrackingSequentialColoring(graph);
     	        		stopTime = System.nanoTime();
     	        		elapsedTime = stopTime - startTime;
@@ -281,7 +283,7 @@ public class App
     	        		System.out.println( "----------end---------\n\n");
     	        	}
     	            final XYSeries series1 = new XYSeries(" BSC ");
-    	            for (int i=0;i<45;i++){
+    	            for (int i=0;i<6;i++){
     	            	System.out.println(i);
     	            	double lol = valeurBacktracking.get(i).doubleValue();
     	    			series1.add( i  ,lol);
@@ -289,13 +291,13 @@ public class App
     	            
     	           
     	            final XYSeries series2 = new XYSeries(" Dsatur ");
-    	            for (int i=0;i<45;i++){
+    	            for (int i=0;i<6;i++){
     	            	double lol = valeurDsatur.get(i).doubleValue();
     	    			series2.add( i  ,lol);
     	    		}
 
     	            final XYSeries series3 = new XYSeries(" Tabucol ");
-    	            for (int i=0;i<45;i++){
+    	            for (int i=0;i<6;i++){
     	            	double lol = valeurTabucol.get(i).doubleValue();
     	    			series3.add(i ,lol );
     	    		}
@@ -316,7 +318,11 @@ public class App
     	         	      ChartPanel chartPanel2 = new ChartPanel( lineChart2 );
     	         	      chartPanel2.setPreferredSize( new java.awt.Dimension( 560 , 367 ) );
     	         	      fenetreGraphe.add(chartPanel2);
-
+    	         	      
+    	         	     Map<Integer, Noeud> noeuds = backtrackingSequentialColoring(matrix3);
+    	         	    for(int i=0;i<noeuds.size();i++){
+    	            		System.out.println("BSC Couleur Du noeud"+i+" est :"+noeuds.get(i).getCouleurCourante());
+    	            	}
    /*	
     		//Tamere
     		//Graphe  de Petersen
@@ -576,7 +582,7 @@ public static int randInt(int min, int max) {
     	int compteurDeNoeudColorier=0;
     	for (int i=0;i<noeuds.size();i++){
     		//On check si la couleur est différente de la couleur neutre.
-    		if( noeuds.get(i).getCouleurCourante() > 0  ){
+    		if( noeuds.get(i).getCouleurCourante()>  0  ){
     			compteurDeNoeudColorier++;
     		}
     	}
@@ -843,8 +849,11 @@ public static int randInt(int min, int max) {
 			noeuds.put(i, noeud);
 		}
     	
-    	algoRecursifBacktracking(noeuds,matriceAdjacence,nbCouleurMax);
-    	return noeuds;
+    	int nbCouleurCourante=1;
+    	algoRecursifBacktracking2(noeuds,matriceAdjacence,nbCouleurCourante,nbCouleurMax);
+    		System.out.println("JESUIS AUSSI ICI MAIS JE NE RETURN TJR PAS * ");
+    		return noeuds;
+    	
     }
     
 
@@ -978,9 +987,99 @@ public static int randInt(int min, int max) {
     	return noeuds;
     }
 
+    public static void   algoRecursifBacktracking2(Map<Integer, Noeud> noeuds,int matriceAdjacence[][],int nbCouleurCourante,int nbCouleurMax){
+		//On récupère l'index du noeud courant : Donc le noeud courant !
+    	if(areAllColored(noeuds)==false && nbCouleurCourante<=nbCouleurMax){
+    	int indexNoeudCourant = getIndexPremierNoeudNonColorier(noeuds);
+    	
+    	
+    	//Retour arrière si il n'y à pas de solution.
 
+	    	if(noeuds.get(indexNoeudCourant).getListeCouleurDejaUtilisee().size()>=nbCouleurCourante){
+	    		
+	    		if(indexNoeudCourant==0){
+	    			
+	    			//Celà veut dire que toutes les solution on étaient testé avec ce nombre de couleur sans succès, donc il faut incrémenter le nombre de couleur courante
+	    			nbCouleurCourante++;
+	    		
+	    			//On vide la liste de couleurs deja utilisées pour le noeud 0
+	    			noeuds.get(indexNoeudCourant).getListeCouleurDejaUtilisee().clear();
+	    			//Puis on relance l'algorithme dans cette configuration.
+	    			if(areAllColored(noeuds)==true) {
+		    			return;
+		    		}
+	    			algoRecursifBacktracking2(noeuds,matriceAdjacence,nbCouleurCourante,nbCouleurMax);
+	    		
+	    		}
+	    		if(indexNoeudCourant>0){	//Sinon on décolore le noeuds d'avant dans la liste
+		    		noeuds.get(indexNoeudCourant-1).setCouleurCourante(0);
+		    		//On vide la liste des couleur déjà utilisée du noeud courant
+		    		noeuds.get(indexNoeudCourant).getListeCouleurDejaUtilisee().clear();
+		    		//Puis on relance l'algorithme dans cette configuration.
+		    		if(areAllColored(noeuds)==true) {
+		    			return;
+		    		}
+		    		algoRecursifBacktracking2(noeuds,matriceAdjacence,nbCouleurCourante,nbCouleurMax);
+	    		}
+	    		if(areAllColored(noeuds)==true) {
+	    			return;
+	    		}
+	    	}
+    	
+    	//On colorie le noeud avec la Première couleur non encore tester sur le noeud
+	    	
+	    
+	    	noeuds.get(indexNoeudCourant).setCouleurCourante(getNumeroCouleurNonEncoreUtilisee(noeuds,indexNoeudCourant,nbCouleurCourante));
+	    	
+        
+    	    	//On regarde si après la coloration du noeud, la coloration est respectée.
+    	if(isConditionRespectee(matriceAdjacence,noeuds,indexNoeudCourant)==true){
+    		if(areAllColored(noeuds)==true) {
+    			return;
+    		}
+    		algoRecursifBacktracking2(noeuds,matriceAdjacence,nbCouleurCourante,nbCouleurMax);
+    	}else{
+    
+    			
+    		
+    	
+    	//Si ce n'est pas le cas, on décolore le noeud.
+		noeuds.get(indexNoeudCourant).setCouleurCourante(0);
+		algoRecursifBacktracking2(noeuds,matriceAdjacence,nbCouleurCourante,nbCouleurMax);
+    	}
+	}
+	
+	return;
+	
+    }
 
+    private static boolean isConditionRespectee(int[][] matriceAdjacence, Map<Integer, Noeud> noeuds,
+			int indexNoeudCourant) {
+		 int nbNoeud = matriceAdjacence[0].length;
+		 	for (int j=0;j<nbNoeud;j++){
+		    	
+				if(matriceAdjacence[indexNoeudCourant][j]==1&&indexNoeudCourant !=j){
+					
+					if(noeuds.get(j).getCouleurCourante()==noeuds.get(indexNoeudCourant).getCouleurCourante() ){
+				
+						return false;
+						
+					}
+					
+					
+				}
+			}
+		 	return true;
+	}
+	public static int getNumeroCouleurNonEncoreUtilisee(Map<Integer, Noeud> noeuds, int noeudCourant,int nbCouleurMax){
+    	for(int i=1;i<=nbCouleurMax;i++){
+    		if (!noeuds.get(noeudCourant).getListeCouleurDejaUtilisee().contains(i)){
+    			return i;
+    		}
+    	}
+    	return 0;
     
-    
+    }
+
 }
 

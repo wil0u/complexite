@@ -84,7 +84,7 @@ public class Noeud {
 	}
 	public void setCouleurCourante(int couleurCourante) {
 		this.couleurCourante = couleurCourante;
-		if(couleurCourante!=0)
+		if(couleurCourante>0)
 			this.listeCouleurDejaUtilisee.add(couleurCourante);
 	}
 
