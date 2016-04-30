@@ -90,7 +90,7 @@ public class App
     	    fenetre.setTitle("Coloration de Graphe");
     	    
     	    // Taille de la fenetre
-    	    fenetre.setSize(1000, 1000);
+    	    fenetre.setSize(1000, 900);
     	    
     	    //Positionnement de la fenetre au centre
     	    fenetre.setLocationRelativeTo(null);
