@@ -31,6 +31,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JList;
 import javax.swing.JComboBox;
+import java.awt.GridLayout;
 
 //Classe Main ! 
 public class App 
@@ -43,7 +44,7 @@ public class App
 	static Dsatur dsatur = new Dsatur();
 	static Tabucol tabucol = new Tabucol();
     static JPanel fenetreCalcul = new JPanel();
-    
+	static JScrollPane scrollGraphe = new JScrollPane();
     //Déclaration des graphes d'exemples avec leur matrice d'adjacence
     
     static int matrix1[][] =  {
@@ -90,7 +91,7 @@ public class App
     	    fenetre.setTitle("Coloration de Graphe");
     	    
     	    // Taille de la fenetre
-    	    fenetre.setSize(1000, 900);
+    	    fenetre.setSize(1200, 600);
     	    
     	    //Positionnement de la fenetre au centre
     	    fenetre.setLocationRelativeTo(null);
@@ -344,8 +345,13 @@ public class App
        	         	      chartPanel3.setPreferredSize( new java.awt.Dimension( 560 , 367 ) );
     	         	     
        	         	      //Affichage des deux courbes !
-    	         	      fenetreGraphe.add(chartPanel2);
-    	         	      fenetreGraphe.add(chartPanel3);
+       	         	      JPanel panneau = new JPanel();
+       	         	      panneau.add(chartPanel2);
+       	      	      	  panneau.add(chartPanel3);
+
+       	         	      scrollGraphe = new JScrollPane (panneau);
+       	         	      fenetreGraphe.add(scrollGraphe);
+       	         	      
     	         	      System.out.println("Fin de la génération des graphiques !");
     	         	 
   
